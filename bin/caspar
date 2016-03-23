@@ -1,0 +1,115 @@
+#!/usr/bin/php
+<?php
+	// Define Caspar paths and related constants
+	define('CSP_CLI', true);
+
+	// This code requires PHP 5.3 or newer, so if we don't have it - complain
+	if (PHP_VERSION_ID < 50300) die('This software requires PHP 5.3.0 or newer, but you have an older version. Please upgrade');
+
+	// Set standard constants needed elsewhere
+	defined('DS') || define('DS', DIRECTORY_SEPARATOR);
+	defined('CASPAR_PATH') || define('CASPAR_PATH', realpath(__DIR__ . DS . '..' . DS) . DS);
+	defined('CASPAR_APPLICATION_PATH') || define('CASPAR_APPLICATION_PATH', realpath(__DIR__ . DS . '..' . DS . '..' . DS) . DS . 'application' . DS);
+
+	try
+	{
+		// Include the "engine" script, which initializes and sets up stuff
+		require CASPAR_PATH . 'bootstrap.inc.php';
+        caspar\core\Caspar::initialize();
+	}
+	catch (Exception $e)
+	{
+		caspar\core\CliCommand::cli_echo("An error occured when trying to initialize the command line client:\n", 'white', 'bold');
+		caspar\core\CliCommand::cli_echo($e->getMessage() . "\n", 'red', 'bold');
+		die();
+	}
+
+	// Set up all available search paths for cli commands
+	$command_paths = array();
+	$command_paths['caspar'] = CASPAR_CORE_PATH . 'cli' . DS;
+
+	$iterator = new \DirectoryIterator(CASPAR_MODULES_PATH);
+	foreach ($iterator as $fileinfo)
+	{
+		if ($fileinfo->isDir())
+		{
+			if (file_exists($fileinfo->getPathname() . DS . 'cli'))
+			{
+				$command_paths[$fileinfo->getFilename()] = $fileinfo->getPathname() . DS . 'cli';
+			}
+		}
+	}
+
+	// Set up all cli commands
+	foreach ($command_paths as $module_name => $command_path)
+	{
+		caspar\core\Caspar::autoloadNamespace('application\\modules\\'.$module_name.'\\cli', $command_path);
+		$_path_handle = opendir($command_path);
+		while ($command_class_file = readdir($_path_handle))
+		{
+			if (($classname = substr($command_class_file, 0, strpos($command_class_file, '.'))) != '')
+			{
+				$finalname = ($module_name == 'caspar') ? '\\caspar\\core\\cli\\'.$classname : 'application\\modules\\'.$module_name.'\\cli\\'.$classname;
+
+				$command = new $finalname($module_name);
+				if ($command instanceof caspar\core\CliCommand)
+				{
+					$commands[$module_name][$command->getCommandName()] = $command;
+					foreach ($command->getCommandAliases() as $alias)
+					{
+						$commands[$module_name][$alias] = $command;
+					}
+				}
+			}
+		}
+	}
+	caspar\core\CliCommand::setAvailableCommands($commands);
+
+	if ($argc < 2)
+	{
+		// Show usage if no parameters are provided
+		caspar\core\CliCommand::cli_echo("Caspar command line tool\n\n");
+		caspar\core\CliCommand::cli_echo("Usage: ", 'white', 'bold');
+		caspar\core\CliCommand::cli_echo(caspar\core\CliCommand::getCommandLineName() . " [");
+		caspar\core\CliCommand::cli_echo('command', 'green', 'bold');
+		caspar\core\CliCommand::cli_echo("]\n");
+		caspar\core\CliCommand::cli_echo("Type " . caspar\core\CliCommand::getCommandLineName() . ' ');
+		caspar\core\CliCommand::cli_echo('help', 'green', 'bold');
+		caspar\core\CliCommand::cli_echo(" for more information.\n\n");
+	}
+	else
+	{
+		// Process arguments and invoke command if available
+		try
+		{
+			caspar\core\CliCommand::processArguments();
+			$namespace_command = explode(":", $argv[1]);
+			$namespace_name = (count($namespace_command) == 2) ? $namespace_command[0] : 'caspar';
+			$command = (count($namespace_command) == 2) ? $namespace_command[1] : $namespace_command[0];
+			
+			if (array_key_exists($namespace_name, $commands) && array_key_exists($command, $commands[$namespace_name]))
+			{
+				$class = $commands[$namespace_name][$command];
+				$class->execute();
+			}
+			else
+			{
+				caspar\core\CliCommand::cli_echo("\n");
+				caspar\core\CliCommand::cli_echo("Unknown command\n", 'red', 'bold');
+				caspar\core\CliCommand::cli_echo("Type " . caspar\core\CliCommand::getCommandLineName() . ' ');
+				caspar\core\CliCommand::cli_echo('help', 'green', 'bold');
+				caspar\core\CliCommand::cli_echo(" for more information about the cli tool.\n\n");
+			}
+		}
+		catch (Exception $e)
+		{
+			caspar\core\CliCommand::cli_echo("\n");
+			caspar\core\CliCommand::cli_echo("The following error occured:\n", 'red', 'bold');
+			caspar\core\CliCommand::cli_echo($e->getMessage()."\n\n", 'red');
+			caspar\core\CliCommand::cli_echo("Type " . caspar\core\CliCommand::getCommandLineName() . ' ');
+			caspar\core\CliCommand::cli_echo('help', 'green', 'bold');
+			caspar\core\CliCommand::cli_echo(" for more information about the cli tool.\n\n");
+		}
+	}
+
+	return true;
