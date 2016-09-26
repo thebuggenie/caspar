@@ -504,6 +504,10 @@ class Caspar
 				// Include the library from the current module if it exists
 				require CASPAR_MODULES_PATH . self::getRouting()->getCurrentRouteModule() . DS . 'lib' . DS . $lib_file_name;
 				self::$_libs[$lib_name] = CASPAR_MODULES_PATH . self::getRouting()->getCurrentRouteModule() . DS . 'lib' . DS . $lib_file_name;
+			} elseif (file_exists(CASPAR_APPLICATION_PATH . 'libs' . DS . $lib_file_name)) {
+				// Include the library from the global library directory if it exists
+				require CASPAR_APPLICATION_PATH . 'libs' . DS . $lib_file_name;
+				self::$_libs[$lib_name] = CASPAR_LIB_PATH . DS . $lib_file_name;
 			} elseif (file_exists(CASPAR_LIB_PATH . DS . $lib_file_name)) {
 				// Include the library from the global library directory if it exists
 				require CASPAR_LIB_PATH . DS . $lib_file_name;

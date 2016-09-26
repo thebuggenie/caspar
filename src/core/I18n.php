@@ -51,12 +51,12 @@
 		public function getStringsFilename($language = null)
 		{
 			$language = ($language === null) ? $this->_language : $language;
-			return \CASPAR_PATH . 'i18n' . DS . $language . DS . 'strings.inc.php';
+			return \CASPAR_APPLICATION_PATH . 'i18n' . DS . $language . DS . 'strings.inc.php';
 		}
 
 		public function initialize()
 		{
-			$filename = \CASPAR_PATH . 'caspar' . DS . 'i18n' . DS . $this->_language . DS . 'initialize.inc.php';
+			$filename = \CASPAR_APPLICATION_PATH . 'i18n' . DS . $this->_language . DS . 'initialize.inc.php';
 			if (file_exists($filename)) {
 				Logging::log("Initiating with file '{$filename}", 'i18n');
 				include $filename;
@@ -139,10 +139,10 @@
 		{
 			$filename = '';
 			if ($module !== null) {
-				if (file_exists(CASPAR_CORE_PATH . 'i18n' . DS . $this->_language . DS . "{$module}.inc.php")) {
-					$filename = CASPAR_CORE_PATH . 'i18n' . DS . $this->_language . DS . "{$module}.inc.php";
+				if (file_exists(CASPAR_APPLICATION_PATH . 'i18n' . DS . $this->_language . DS . "{$module}.inc.php")) {
+					$filename = CASPAR_APPLICATION_PATH . 'i18n' . DS . $this->_language . DS . "{$module}.inc.php";
 				} else {
-					$filename = CASPAR_MODULES_PATH . $module . DS . 'i18n' . DS . $this->_language . DS . "{$module}.inc.php";
+					$filename = CASPAR_APPLICATION_PATH . 'modules' . DS . $module . DS . 'i18n' . DS . $this->_language . DS . "{$module}.inc.php";
 				}
 			} else {
 				$filename = $this->getStringsFilename();
