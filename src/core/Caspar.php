@@ -229,10 +229,7 @@ class Caspar
 		if (self::isCLI())
 			return null;
 
-		$language = (self::$_user instanceof User) ? self::$_user->getLanguage() : Settings::getLanguage();
-
-		if (self::$_user instanceof User && self::$_user->getLanguage() == 'sys')
-			$language = Settings::getLanguage();
+		$language = self::$_configuration['core']['language'];
 
 		Logging::log('Loading i18n strings');
 		if (!self::$_i18n = Cache::get("i18n_{$language}")) {
@@ -331,8 +328,9 @@ class Caspar
 	 */
 	public static function getI18n()
 	{
-		if (!self::$_i18n instanceof I18n)
-			self::$_i18n = new I18n();
+		if (!self::$_i18n instanceof I18n) {
+            self::setupI18n();
+        }
 
 		return self::$_i18n;
 	}

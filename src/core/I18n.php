@@ -62,9 +62,6 @@
 				include $filename;
 			}
 			$this->loadStrings();
-			foreach (Caspar::getModules() as $module_name => $module) {
-				$this->loadStrings($module_name);
-			}
 			date_default_timezone_set('Europe/Oslo');
 		}
 
@@ -83,8 +80,7 @@
 
 		public function addMissingStringsToStringsFile()
 		{
-			return;
-			$strings = array();
+            $strings = [];
 			foreach ($this->getMissingStrings() as $string => $truth)
 			{
 				if (mb_strpos($string, '"') !== false && mb_strpos($string, "'") !== false)
@@ -101,7 +97,9 @@
 					$strings[] = '$strings[\''.$string.'\'] = \''.$string."';";
 				}
 			}
-			file_put_contents("\n\t".$this->getStringsFilename(), join("\n\t", $strings), FILE_APPEND);
+			if (!empty($strings)) {
+                file_put_contents($this->getStringsFilename(), join("\n\t", $strings)."\n", FILE_APPEND);
+            }
 		}
 
 		public function setCharset($charset)
