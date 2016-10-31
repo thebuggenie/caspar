@@ -509,7 +509,7 @@
 			}
 			if (!$relative)
 			{
-				return Caspar::getBasePath() . $real_url;
+				return Caspar::getBaseUrl() . $real_url;
 			}
 			return $real_url;
 		}
