@@ -41,8 +41,9 @@
 			if (!file_exists($this->getStringsFilename($language))) {
 				Logging::log('Selected language not available, trying "en_US" as a last attempt', 'i18n', Logging::LEVEL_NOTICE);
 				$this->_language = 'en_US';
-				if (!file_exists($this->getStringsFilename($this->_language))) {
-					throw new \Exception('The selected language is not available');
+                $stringsFilename = $this->getStringsFilename($this->_language);
+                if (!file_exists($stringsFilename)) {
+					throw new \Exception("The selected language ({$stringsFilename}) is not available");
 				}
 			}
 			$this->_language = $language;

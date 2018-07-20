@@ -125,6 +125,13 @@ class Caspar
 	static protected $_routing;
 
 	/**
+	 * The action object
+	 *
+	 * @var Actions
+	 */
+	static protected $_actions;
+
+	/**
 	 * The debugger object
 	 *
 	 * @var Debugger
@@ -252,10 +259,12 @@ class Caspar
 			$event = Event::createNew('core', 'pre_login');
 			$event->trigger();
 
-			if ($event->isProcessed())
-				self::loadUser($event->getReturnValue());
-			else
-				self::loadUser();
+            if ($event->isProcessed())
+                self::loadUser($event->getReturnValue(), true);
+            elseif (!self::isCLI())
+                self::loadUser(null, true);
+            else
+                self::$_user = new User();
 
 			Event::createNew('core', 'post_login', self::getUser())->trigger();
 
@@ -342,18 +351,12 @@ class Caspar
 	 */
 	public static function loadUser($user = null)
 	{
-		try {
-			$classname = self::$_configuration['core']['user_classname'];
-			$request = self::getRequest();
-			self::$_user = ($user === null) ? $classname::loginCheck($request->getParameter('csp_username', $request->getCookie('csp_username')), $request->getParameter('csp_password', $request->getCookie('csp_password')), !$request->hasCookie('csp_password')) : $user;
-			if (self::$_user->isAuthenticated()) {
-				self::getResponse()->setCookie('csp_username', self::$_user->getUsername());
-				self::getResponse()->setCookie('csp_password', self::$_user->getPassword());
-				Event::createNew('core', 'post_loaduser', self::$_user)->trigger();
-			}
-		} catch (Exception $e) {
-			throw $e;
-		}
+        $classname = self::$_configuration['core']['user_classname'];
+        self::$_user = ($user === null) ? $classname::identify(self::getRequest(), self::getCurrentAction(), true) : $user;
+        if (self::$_user->isAuthenticated()) {
+            Event::createNew('core', 'post_loaduser', self::$_user)->trigger();
+        }
+
 		return self::$_user;
 	}
 
@@ -364,9 +367,6 @@ class Caspar
 	 */
 	public static function getUser()
 	{
-		if (!self::$_user instanceof self::$_configuration['core']['user_classname'])
-			self::initializeUser();
-
 		return self::$_user;
 	}
 
@@ -386,8 +386,8 @@ class Caspar
 	public static function logout()
 	{
 		Event::createNew('caspar', 'caspar\pre_logout')->trigger();
-		self::getResponse()->deleteCookie('csp_username');
-		self::getResponse()->deleteCookie('csp_password');
+        self::getResponse()->deleteCookie('username');
+        self::getResponse()->deleteCookie('session_token');
 		self::getResponse()->deleteCookie(CASPAR_SESSION_NAME);
 		session_regenerate_id(true);
 		Event::createNew('caspar', 'caspar\post_logout')->trigger();
@@ -536,13 +536,19 @@ class Caspar
 		return self::$_partials_visited;
 	}
 
-	/**
-	 * Performs an action
-	 * 
-	 * @param string $module Name of the action
-	 * @param string $method Name of the action method to run
-	 */
-	public static function performAction($module, $method)
+    /**
+     * Performs an action
+     *
+     * @param Actions $actionObject
+     * @param string $module Name of the action
+     * @param string $method Name of the action method to run
+     * @return bool
+     * @throws ActionNotFoundException
+     * @throws CSRFFailureException
+     * @throws LibraryNotFoundException
+     * @throws TemplateNotFoundException
+     */
+	public static function performAction(Actions $actionObject, $module, $method)
 	{
 		// Set content variable
 		$content = null;
@@ -551,17 +557,14 @@ class Caspar
 		$template_path = CASPAR_MODULES_PATH . $module . DS . 'templates' . DS;
 
 		// Construct the action class and method name, including any pre- action(s)
-		$actionClassName = "\\application\\modules\\$module\\Actions";
 		$actionToRunName = 'run' . ucfirst($method);
 		$preActionToRunName = 'pre' . ucfirst($method);
+		$actionClassName = get_class($actionObject);
 
 		// Set up the response object, responsible for controlling any output
 		self::getResponse()->setPage(self::getRouting()->getCurrentRouteName());
 		self::getResponse()->setTemplate(mb_strtolower($method) . '.' . self::getRequest()->getRequestedFormat() . '.php');
 		self::getResponse()->setupResponseContentType(self::getRequest()->getRequestedFormat());
-
-		// Set up the action object
-		$actionObject = new $actionClassName();
 
 		// Run the specified action method set if it exists
 		if (method_exists($actionObject, $actionToRunName)) {
@@ -732,17 +735,6 @@ class Caspar
 		}
 	}
 
-	public static function calculateTimings(&$csp_summary)
-	{
-		$load_time = self::getLoadtime();
-		if (self::getB2DBInstance() instanceof \b2db\Connection) {
-			$csp_summary['db_queries'] = \b2db\Core::getSQLHits();
-			$csp_summary['db_timing'] = \b2db\Core::getSQLTiming();
-		}
-		$csp_summary['load_time'] = ($load_time >= 1) ? round($load_time, 2) . ' seconds' : round($load_time * 1000, 1) . 'ms';
-		self::ping();
-	}
-
 	/**
 	 * Launches the MVC framework
 	 */
@@ -750,18 +742,31 @@ class Caspar
 	{
 		Logging::log('Dispatching');
 		try {
-			if (($route = self::getRouting()->getRouteFromUrl(self::getRequest()->getParameter('url', null, false))) /* || self::isInstallmode() */) {
+            if (($route = self::getRouting()->getRouteFromUrl(self::getRequest()->getParameter('url', null, false))) /* || self::isInstallmode() */) {
 				if (self::$_redirect_login) {
 					Logging::log('An error occurred setting up the user object, redirecting to login', 'main', Logging::LEVEL_NOTICE);
 					self::setMessage('login_message_err', self::geti18n()->__('Please log in'));
 					self::getResponse()->headerRedirect(self::getRouting()->generate('login_page'), 403);
 				}
-				if (self::performAction($route['module'], $route['action'])) {
-					return true;
-				}
+                // Set up the action object
+                $module = $route['module'];
+				$action = $route['action'];
+                $actionClassName = "\\application\\modules\\$module\\Actions";
+                $actionObject = new $actionClassName();
+
 			} else {
-				self::performAction('main', 'notFound');
+                $actionObject = new \caspar\core\controllers\Common();
+                $module = 'main';
+                $action = 'notFound';
 			}
+
+			self::$_actions = $actionObject;
+
+            self::initializeUser();
+
+            if (self::performAction($actionObject, $module, $action)) {
+                return true;
+            }
 		} catch (TemplateNotFoundException $e) {
 			header("HTTP/1.0 404 Not Found", true, 404);
 			throw $e;
@@ -785,6 +790,16 @@ class Caspar
 			throw $e;
 		}
 	}
+
+    /**
+     * Returns the current action object
+     *
+     * @return Actions
+     */
+    public static function getCurrentAction()
+    {
+        return self::$_actions;
+    }
 
 	public static function isCLI()
 	{
@@ -810,7 +825,7 @@ class Caspar
 	protected static function cliError($title, $exception)
 	{
 		$trace_elements = null;
-		if ($exception instanceof \Exception) {
+		if ($exception instanceof \Exception || $exception instanceof \Error) {
 			if ($exception instanceof ActionNotFoundException) {
 				CliCommand::cli_echo("Could not find the specified action\n", 'white', 'bold');
 			} elseif ($exception instanceof TemplateNotFoundException) {
@@ -1041,6 +1056,39 @@ class Caspar
 			}
 		}
 		self::$_configuration['routes'] = $routes;
+	}
+
+	public static function bootstrap()
+	{
+        if (!defined('CASPAR_PATH')) {
+            throw new \RuntimeException('You must define the CASPAR_PATH constant so we can find the files we need');
+        }
+
+        if (!defined('CASPAR_APPLICATION_PATH')) {
+            throw new \RuntimeException('You must define the CASPAR_APPLICATION_PATH constant so we can find the application files');
+        }
+
+        date_default_timezone_set('UTC');
+        mb_internal_encoding("UTF-8");
+        mb_language('uni');
+        mb_http_output("UTF-8");
+
+        defined('CASPAR_CORE_PATH') || define('CASPAR_CORE_PATH', CASPAR_PATH . 'core' . DS);
+        defined('CASPAR_LIB_PATH') || define('CASPAR_LIB_PATH', CASPAR_PATH . 'libs' . DS);
+        defined('CASPAR_MODULES_PATH') || define('CASPAR_MODULES_PATH', CASPAR_APPLICATION_PATH . 'modules' . DS);
+        defined('CASPAR_ENTITIES_PATH') || define('CASPAR_ENTITIES_PATH', CASPAR_APPLICATION_PATH . 'entities' . DS);
+        defined('CASPAR_CACHE_PATH') || define('CASPAR_CACHE_PATH', CASPAR_APPLICATION_PATH . 'cache' . DS);
+        defined('CASPAR_SESSION_NAME') || defined('CASPAR_SESSION_NAME') || define('CASPAR_SESSION_NAME', 'CASPAR_SESSION');
+
+        // Set up error and exception handling
+        set_exception_handler([self::class, 'exceptionHandler']);
+        set_error_handler([self::class, 'errorHandler']);
+        error_reporting(E_ALL | E_NOTICE | E_STRICT);
+
+        if (!isset($GLOBALS['argc']) && !ini_get('session.auto_start')) {
+            session_name(CASPAR_SESSION_NAME);
+            session_start();
+        }
 	}
 
 	public static function initialize()

@@ -135,11 +135,17 @@
 			return crypt($password, '$2a$07$'.$salt.'$');
 		}
 		
-		public static function loginCheck()
+        /**
+         * @param Request $request
+         * @param Actions $action
+         * @param bool $auto
+         * @return User
+         */
+		public static function identify(Request $request, Actions $action, $auto = false)
 		{
 			return new User();
 		}
-		
+
 		/**
 		 * Create and return a temporary password
 		 * 
