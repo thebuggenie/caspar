@@ -45,7 +45,7 @@
 		protected static function getFinalTemplateName($template, $module_file = null)
 		{
 			if (!isset($module_file)) $module_file = self::getModuleAndTemplate($template);
-			if (($template_name = Caspar::getI18n()->hasTranslatedTemplate($template, true)) === false)
+			if (Caspar::isCLI() || ($template_name = Caspar::getI18n()->hasTranslatedTemplate($template, true)) === false)
 			{
 				$template_name = \CASPAR_MODULES_PATH . $module_file['module'] . DS . 'templates' . DS . "_{$module_file['file']}.inc.php";
 			}
