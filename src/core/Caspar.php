@@ -967,7 +967,7 @@ class Caspar
 		$configuration = self::_loadEnvironmentConfiguration();
 		$configuration = array_merge_recursive($configuration, self::_loadEnvironmentConfiguration('_' . self::$_environment));
 
-		self::$_configuration = array('core' => $configuration['core']);
+		self::$_configuration = $configuration;
 
 		if (self::$_configuration['core']['debug']) {
 			self::$_debug_mode = true;
