@@ -914,10 +914,10 @@ class Caspar
 				self::getResponse()->ajaxResponseText(404, $exception->getMessage());
 			}
 
-			var_dump($exception);
-//			self::getResponse()->cleanBuffer();
-//
-//			require CASPAR_PATH . 'templates' . DS . 'error.php';
+//			var_dump($exception);
+			self::getResponse()->cleanBuffer();
+
+			require CASPAR_PATH . 'templates' . DS . 'error.php';
 		}
 		die();
 	}
