@@ -62,6 +62,9 @@ should look like this:
 }
 ```
 
+Remember to run `composer update` or `composer dump-autoload` after this change, so 
+composer actually updates its autoloader.
+
 ## Configuring your application
 At this point, your skeleton application is ready to use, but requires a small bit of 
 configuration.
