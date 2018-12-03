@@ -1,30 +1,31 @@
 {
   "name": "thebuggenie/caspar",
   "description": "Caspar is a lightweight, generic MVC framework for PHP applications",
+  "bin": ["bin/caspar"],
   "keywords": [
-	"MVC",
-	"framework",
-	"lightweight"
+    "MVC",
+    "framework",
+    "lightweight"
   ],
   "authors": [
-	{
-	  "name": "Daniel Andre Eikeland",
-	  "email": "zegenie@gmail.com"
-	}
+    {
+      "name": "Daniel Andre Eikeland",
+      "email": "zegenie@gmail.com"
+    }
   ],
   "license": [
-	"MPL-2.0"
+    "MPL-2.0"
   ],
   "require": {
-	"php": "^7.1|^7.2",
-	"mustangostang/spyc": "0.5.1",
-	"ext-Reflection": "*",
-	"ext-mbstring": "*",
-	  "ext-json": "*"
+    "php": "^7.1|^7.2",
+    "mustangostang/spyc": "0.5.1",
+    "ext-Reflection": "*",
+    "ext-mbstring": "*",
+    "ext-json": "*"
   },
   "autoload": {
-	"psr-4": {
-	  "caspar\\": "src/"
-	}
+    "psr-4": {
+      "caspar\\": "src/"
+    }
   }
 }

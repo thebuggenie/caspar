@@ -38,6 +38,7 @@
             $this->createApplicationFolder();
             $this->createApplicationFolders();
             $this->createApplicationClasses();
+            $this->createApplicationEntities();
             $this->createApplicationConfigurationFile();
             $this->createApplicationFiles();
 
@@ -168,6 +169,71 @@
                 $this->cliEcho('notfound.html.php', 'yellow', 'bold');
                 $this->cliEcho(" file\n", 'green');
             }
+        }
+
+        protected function createApplicationEntities(): void
+        {
+            $user_class = CASPAR_APPLICATION_PATH . DS . 'entities' . DS . 'User.php';
+            $user_table_class = CASPAR_APPLICATION_PATH . DS . 'entities' . DS . 'tables' . DS . 'Users.php';
+            $user_token_class = CASPAR_APPLICATION_PATH . DS . 'entities' . DS . 'UserToken.php';
+            $user_token_table_class = CASPAR_APPLICATION_PATH . DS . 'entities' . DS . 'tables' . DS . 'UserTokens.php';
+            $user_session_class = CASPAR_APPLICATION_PATH . DS . 'entities' . DS . 'UserSession.php';
+            $user_session_table_class = CASPAR_APPLICATION_PATH . DS . 'entities' . DS . 'tables' . DS . 'UserSessions.php';
+
+            if (!file_exists($user_class)) {
+                file_put_contents($user_class, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'User.php'));
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'entities' . DS, 'white', 'bold');
+                $this->cliEcho('User.php', 'yellow', 'bold');
+                $this->cliEcho(" file\n", 'green');
+            }
+
+            if (!file_exists($user_table_class)) {
+                file_put_contents($user_table_class, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'Users.php'));
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'entities' . DS . 'tables' . DS, 'white', 'bold');
+                $this->cliEcho('Users.php', 'yellow', 'bold');
+                $this->cliEcho(" file\n", 'green');
+            }
+
+            if (!file_exists($user_token_class)) {
+                file_put_contents($user_token_class, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'UserToken.php'));
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'entities' . DS, 'white', 'bold');
+                $this->cliEcho('UserToken.php', 'yellow', 'bold');
+                $this->cliEcho(" file\n", 'green');
+            }
+
+            if (!file_exists($user_token_table_class)) {
+                file_put_contents($user_token_table_class, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'UserTokens.php'));
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'entities' . DS . 'tables' . DS, 'white', 'bold');
+                $this->cliEcho('UserTokens.php', 'yellow', 'bold');
+                $this->cliEcho(" file\n", 'green');
+            }
+
+            if (!file_exists($user_session_class)) {
+                file_put_contents($user_session_class, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'UserSession.php'));
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'entities' . DS, 'white', 'bold');
+                $this->cliEcho('UserSession.php', 'yellow', 'bold');
+                $this->cliEcho(" file\n", 'green');
+            }
+
+            if (!file_exists($user_session_table_class)) {
+                file_put_contents($user_session_table_class, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'UserSessions.php'));
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'entities' . DS . 'tables' . DS, 'white', 'bold');
+                $this->cliEcho('UserSessions.php', 'yellow', 'bold');
+                $this->cliEcho(" file\n", 'green');
+            }
+
         }
 
         protected function createApplicationClasses(): void
