@@ -991,13 +991,24 @@ class Caspar
 			self::$_serviceconfigurations = array();
 		} else {
 			foreach (self::$_serviceconfigurations as $service => $configuration) {
-				if (array_key_exists('auto_initialize', $configuration) && $configuration['auto_initialize'] == true) {
-					if (array_key_exists('callback', $configuration)) {
-						$callback = $configuration['callback'];
-						$arguments = array_key_exists('arguments', $configuration) ? $configuration['arguments'] : array();
-						call_user_func($callback, $arguments);
-					}
-				}
+			    try {
+                    if (array_key_exists('auto_initialize', $configuration) && $configuration['auto_initialize'] == true) {
+                        if (array_key_exists('callback', $configuration)) {
+                            $callback = $configuration['callback'];
+                            $arguments = array_key_exists('arguments', $configuration) ? $configuration['arguments'] : array();
+                            if (!is_callable($callback)) {
+
+                                throw new \Exception('Cannot auto-initialize service ' . $service . ', invalid auto-initialize method.');
+
+                            }
+                            call_user_func($callback, $arguments);
+                        }
+                    }
+                } catch (\Exception $e) {
+
+			        throw new \Exception('There was an error trying to initialize service ' . $service . ', defined in caspar.yml: ' . $e->getMessage());
+
+                }
 			}
 		}
 	}
