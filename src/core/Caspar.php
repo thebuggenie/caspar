@@ -969,8 +969,6 @@ class Caspar
 
 		self::$_configuration = $configuration;
 
-		var_dump(self::$_configuration);
-		die();
 		if (self::getConfiguration('core', 'debug') === true) {
 			self::$_debug_mode = true;
 			self::getResponse()->addStylesheet('/css/debugger.css');
