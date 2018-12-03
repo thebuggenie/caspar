@@ -2,23 +2,15 @@
 
 	namespace caspar\core\cli;
 
-	/**
-	 * CLI command class, caspar -> help
-	 *
-	 * @author Daniel Andre Eikeland <zegenie@zegeniestudios.net>
-	 * @version 1.0
-	 * @license http://www.opensource.org/licenses/mozilla1.1.php Mozilla Public License 1.1 (MPL 1.1)
-	 * @package caspar
-	 * @subpackage cli
-	 */
+	use caspar\core\CliCommand;
 
-	/**
+    /**
 	 * CLI command class, caspar -> help
 	 *
 	 * @package caspar
 	 * @subpackage cli
 	 */
-	class CliHelp extends \caspar\core\CliCommand
+	class CliHelp extends CliCommand
 	{
 
 		protected function _setup()

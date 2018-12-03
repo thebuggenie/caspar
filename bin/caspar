@@ -14,9 +14,13 @@ defined('CASPAR_APPLICATION_PATH') || define('CASPAR_APPLICATION_PATH', realpath
 
 try
 {
-    require CASPAR_PATH . '..' . DS . '..' . DS . '..' . DS . 'autoload.php';
-    // Include the "engine" script, which initializes and sets up stuff
-    require CASPAR_PATH . 'bootstrap.inc.php';
+    if (file_exists(CASPAR_PATH . '..' . DS . '..' . DS . '..' . DS . 'autoload.php')) {
+        require CASPAR_PATH . '..' . DS . '..' . DS . '..' . DS . 'autoload.php';
+    } else {
+        require CASPAR_PATH . 'vendor' . DS . 'autoload.php';
+    }
+
+    // Initialize caspar
     caspar\core\Caspar::initialize();
 }
 catch (Exception $e)

@@ -1096,6 +1096,8 @@ class Caspar
 
 	public static function initialize()
 	{
+	    self::bootstrap();
+
 		// The time the script was loaded
 		$starttime = explode(' ', microtime());
 		define('NOW', $starttime[1]);
