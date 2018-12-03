@@ -76,6 +76,7 @@
                         'base_path' => '',
                         'cookie_domain' => '',
                         'cookie_path' => '',
+                        'language' => 'en_US',
                         'stylesheets' => ['/css/' . $this->app_key . '.css'],
                         'javascripts' => ['/js/' . $this->app_key . '.js'],
                         'user_classname' => '\application\entities\User',
@@ -124,6 +125,7 @@
             $htaccess_filename = CASPAR_APPLICATION_PATH . DS . '..' . DS . 'public' . DS . '.htaccess';
             $index_action_filename = CASPAR_MODULES_PATH . DS . 'main' . DS . 'templates' . DS . 'index.html.php';
             $notfound_filename = CASPAR_MODULES_PATH . DS . 'main' . DS . 'templates' . DS . 'notfound.html.php';
+            $strings_filename = CASPAR_APPLICATION_PATH . DS . 'i18n' . DS . 'en_US' . DS . 'strings.inc.php';
 
             if (!file_exists($template_filename)) {
                 file_put_contents($template_filename, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'layout.php'));
@@ -167,6 +169,15 @@
                 $this->cliEcho('* created ', 'green');
                 $this->cliEcho('application' . DS . 'modules' . DS . 'main' . DS . 'templates' . DS, 'white', 'bold');
                 $this->cliEcho('notfound.html.php', 'yellow', 'bold');
+                $this->cliEcho(" file\n", 'green');
+            }
+
+            if (!file_exists($strings_filename)) {
+                file_put_contents($strings_filename, '<?php' . "\n\n");
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'i18n' . DS . 'en_US' . DS, 'white', 'bold');
+                $this->cliEcho('strings.inc.php', 'yellow', 'bold');
                 $this->cliEcho(" file\n", 'green');
             }
         }

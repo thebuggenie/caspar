@@ -2,6 +2,8 @@
 
     namespace application\entities;
 
+    use application\entities\tables\Users;
+    use application\entities\tables\UserTokens;
     use caspar\core\Actions;
     use caspar\core\Caspar;
     use caspar\core\Logging;
