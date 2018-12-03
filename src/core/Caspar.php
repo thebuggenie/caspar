@@ -29,10 +29,10 @@ class Caspar
 
 	static protected $_environment;
 	static protected $_debug_mode = true;
-	static protected $_partials_visited = array();
+	static protected $_partials_visited = [];
 	static protected $_configuration;
 	static protected $_serviceconfigurations;
-	static protected $_services = array();
+	static protected $_services = [];
 	static protected $_ver_mj;
 	static protected $_ver_mn;
 	static protected $_ver_rev;
@@ -115,7 +115,7 @@ class Caspar
 	 *
 	 * @var string
 	 */
-	static protected $_libs = array();
+	static protected $_libs = [];
 
 	/**
 	 * The routing object
@@ -401,7 +401,7 @@ class Caspar
 	public static function setMessage($key, $message)
 	{
 		if (!array_key_exists('caspar_message', $_SESSION)) {
-			$_SESSION['caspar_message'] = array();
+			$_SESSION['caspar_message'] = [];
 		}
 		$_SESSION['caspar_message'][$key] = $message;
 	}
@@ -409,7 +409,7 @@ class Caspar
 	protected static function _setupMessages()
 	{
 		if (self::$_messages === null) {
-			self::$_messages = array();
+			self::$_messages = [];
 			if (array_key_exists('caspar_message', $_SESSION)) {
 				self::$_messages = $_SESSION['caspar_message'];
 				unset($_SESSION['caspar_message']);
@@ -524,7 +524,7 @@ class Caspar
 		if (!self::$_debug_mode)
 			return;
 		if (!array_key_exists($template_name, self::$_partials_visited)) {
-			self::$_partials_visited[$template_name] = array('time' => $time, 'count' => 1);
+			self::$_partials_visited[$template_name] = ['time' => $time, 'count' => 1];
 		} else {
 			self::$_partials_visited[$template_name]['count']++;
 			self::$_partials_visited[$template_name]['time'] += $time;
@@ -780,7 +780,7 @@ class Caspar
 
 			if (self::getRequest()->getRequestedFormat() == 'json') {
 				self::$_response->setContentType('application/json');
-				$message = json_encode(array('message' => $message));
+				$message = json_encode(['message' => $message]);
 			}
 
 			self::$_response->renderHeaders();
@@ -858,7 +858,7 @@ class Caspar
 		}
 		foreach ($trace_elements as $trace_element) {
 			if (array_key_exists('class', $trace_element)) {
-				if ($trace_element['class'] == 'caspar\\core\\Caspar' && in_array($trace_element['function'], array('errorHandler', 'exceptionHandler')))
+				if ($trace_element['class'] == 'caspar\\core\\Caspar' && in_array($trace_element['function'], ['errorHandler', 'exceptionHandler']))
 					continue;
 				CliCommand::cli_echo($trace_element['class'] . $trace_element['type'] . $trace_element['function'] . '()');
 			} elseif (array_key_exists('function', $trace_element)) {
@@ -947,8 +947,8 @@ class Caspar
 			Logging::log('Using file cached configuration');
 		} else {
 			Logging::log('Configuration not cached. Retrieving configuration from file');
-			$filename = \CASPAR_APPLICATION_PATH . 'configuration' . \DS . "caspar{$environment}.yml";
-			$configuration = (file_exists($filename)) ? \Spyc::YAMLLoad($filename, true) : array();
+			$filename = \CASPAR_APPLICATION_PATH . 'configuration' . \DS . "caspar_{$environment}.yml";
+			$configuration = (file_exists($filename)) ? \Spyc::YAMLLoad($filename, true) : [];
 			Cache::add(self::CACHE_KEY_SETTINGS . $environment, $configuration);
 			Cache::fileAdd(self::CACHE_KEY_SETTINGS . $environment, $configuration);
 			Logging::log('Configuration loaded');
@@ -981,21 +981,21 @@ class Caspar
 		if (array_key_exists('services', $configuration)) {
 			self::$_serviceconfigurations = $configuration['services'];
 		} else {
-			self::$_serviceconfigurations = array();
+			self::$_serviceconfigurations = [];
 		}
 	}
 
 	protected static function initializeServices()
 	{
 		if (!is_array(self::$_serviceconfigurations)) {
-			self::$_serviceconfigurations = array();
+			self::$_serviceconfigurations = [];
 		} else {
 			foreach (self::$_serviceconfigurations as $service => $configuration) {
 			    try {
                     if (array_key_exists('auto_initialize', $configuration) && $configuration['auto_initialize'] == true) {
                         if (array_key_exists('callback', $configuration)) {
                             $callback = $configuration['callback'];
-                            $arguments = array_key_exists('arguments', $configuration) ? $configuration['arguments'] : array();
+                            $arguments = array_key_exists('arguments', $configuration) ? $configuration['arguments'] : [];
                             if (!is_callable($callback)) {
 
                                 throw new \Exception('Cannot auto-initialize service ' . $service . ', invalid auto-initialize method.');
@@ -1038,8 +1038,8 @@ class Caspar
 		} elseif ($routes = Cache::fileGet(self::CACHE_KEY_ROUTES_ALL)) {
 			Logging::log('Using file cached routes');
 		} else {
-			$routes = array();
-			$files = array(\CASPAR_APPLICATION_PATH . 'configuration' . \DS . 'routes.yml' => self::CACHE_KEY_ROUTES_APPLICATION);
+			$routes = [];
+			$files = [\CASPAR_APPLICATION_PATH . 'configuration' . \DS . 'routes.yml' => self::CACHE_KEY_ROUTES_APPLICATION];
 
 			if (file_exists(CASPAR_MODULES_PATH)) {
                 $iterator = new \DirectoryIterator(CASPAR_MODULES_PATH);
@@ -1151,7 +1151,7 @@ class Caspar
 		return self::$_environment;
 	}
 
-	public static function setCacheStrategy($in_memory = array(), $filecache = array())
+	public static function setCacheStrategy($in_memory = [], $filecache = [])
 	{
 		$in_memory_enabled = (array_key_exists('enabled', $in_memory) && $in_memory['enabled']);
 		$in_memory_type = ($in_memory_enabled) ? $in_memory['type'] : null;
@@ -1173,7 +1173,7 @@ class Caspar
 
     public static function getConfiguration($section, $key = null)
     {
-        if (!array_key_exists($section, self::$_configuration)) return ($key !== null) ? null : array();
+        if (!array_key_exists($section, self::$_configuration)) return ($key !== null) ? null : [];
 
         return (array_key_exists($key, self::$_configuration[$section])) ? self::$_configuration[$section][$key] : null;
     }

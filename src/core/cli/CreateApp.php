@@ -66,6 +66,7 @@
         protected function createApplicationConfigurationFile(): void
         {
             $config_filename = CASPAR_APPLICATION_PATH . DS . 'configuration' . DS . 'caspar.yml';
+            $dev_config_filename = CASPAR_APPLICATION_PATH . DS . 'configuration' . DS . 'caspar_dev.yml';
             if (!file_exists($config_filename)) {
                 $config = [
                     'core' => [
@@ -94,8 +95,14 @@
                         ]
                     ]
                 ];
+                $dev_config = [
+                    'core' => [
+                        'debug' => false,
+                        ]
+                    ];
 
                 file_put_contents($config_filename, \Spyc::YAMLDump($config));
+                file_put_contents($dev_config_filename, \Spyc::YAMLDump($dev_config));
 
                 $this->cliEcho('* created ', 'green');
                 $this->cliEcho('application' . DS . 'configuration' . DS, 'white', 'bold');

@@ -13,11 +13,8 @@
 
     require CASPAR_BASE_PATH . 'vendor' . DS . 'autoload.php';
 
-    // Include the "engine" script, which initializes and sets up stuff
-    require CASPAR_PATH . 'bootstrap.inc.php';
-
 	// Set runtime environment
-	\caspar\core\Caspar::setEnvironment('prod');
+	\caspar\core\Caspar::setEnvironment('dev');
 	\caspar\core\Caspar::setCacheStrategy(
 	    ['enabled' => false, 'type' => \caspar\core\Cache::TYPE_APC],
         ['enabled' => false, 'path' => CASPAR_CACHE_PATH]
