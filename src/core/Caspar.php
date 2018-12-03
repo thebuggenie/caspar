@@ -947,7 +947,7 @@ class Caspar
 			Logging::log('Using file cached configuration');
 		} else {
 			Logging::log('Configuration not cached. Retrieving configuration from file');
-			$filename = \CASPAR_APPLICATION_PATH . 'configuration' . \DS . "caspar_{$environment}.yml";
+			$filename = \CASPAR_APPLICATION_PATH . 'configuration' . \DS . "caspar{$environment}.yml";
 			$configuration = (file_exists($filename)) ? \Spyc::YAMLLoad($filename, true) : [];
 			Cache::add(self::CACHE_KEY_SETTINGS . $environment, $configuration);
 			Cache::fileAdd(self::CACHE_KEY_SETTINGS . $environment, $configuration);
@@ -965,10 +965,12 @@ class Caspar
 		self::$_ver_name = 'Ninja';
 
 		$configuration = self::_loadEnvironmentConfiguration();
-		$configuration = array_merge_recursive($configuration, self::_loadEnvironmentConfiguration('_' . self::$_environment));
+		$configuration = array_replace_recursive($configuration, self::_loadEnvironmentConfiguration('_' . self::$_environment));
 
 		self::$_configuration = $configuration;
 
+		var_dump(self::$_configuration);
+		die();
 		if (self::getConfiguration('core', 'debug') === true) {
 			self::$_debug_mode = true;
 			self::getResponse()->addStylesheet('/css/debugger.css');
