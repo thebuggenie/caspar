@@ -97,7 +97,7 @@
                 ];
                 $dev_config = [
                     'core' => [
-                        'debug' => false,
+                        'debug' => true,
                         ]
                     ];
 
@@ -108,6 +108,11 @@
                 $this->cliEcho('application' . DS . 'configuration' . DS, 'white', 'bold');
                 $this->cliEcho('caspar.yml', 'yellow', 'bold');
                 $this->cliEcho(" configuration file\n", 'green');
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'configuration' . DS, 'white', 'bold');
+                $this->cliEcho('caspar_dev.yml', 'yellow', 'bold');
+                $this->cliEcho(" configuration file (development)\n", 'green');
             }
         }
 
