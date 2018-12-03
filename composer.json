@@ -18,7 +18,8 @@
   "require": {
 	"php": "^7.1|^7.2",
 	"mustangostang/spyc": "0.5.1",
-	"ext-Reflection": "*"
+	"ext-Reflection": "*",
+	"ext-mbstring": "*"
   },
   "autoload": {
 	"psr-4": {
