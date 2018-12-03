@@ -1029,31 +1029,34 @@ class Caspar
 		} else {
 			$routes = array();
 			$files = array(\CASPAR_APPLICATION_PATH . 'configuration' . \DS . 'routes.yml' => self::CACHE_KEY_ROUTES_APPLICATION);
-			$iterator = new \DirectoryIterator(CASPAR_MODULES_PATH);
-			foreach ($iterator as $fileinfo) {
-				if ($fileinfo->isDir()) {
-					$files[$fileinfo->getPathname() . \DS . 'configuration' . \DS . 'routes.yml'] = self::CACHE_KEY_ROUTES_ALL . '_' . $fileinfo->getBasename();
-				}
-			}
-			foreach ($files as $filename => $cachekey) {
-				if ($route_entries = Cache::get($cachekey)) {
-					Logging::log('Using cached route entry for ' . $filename);
-				} elseif ($route_entries = Cache::fileGet($cachekey)) {
-					Logging::log('Using file cached route entry for ' . $filename);
-				} else {
-					$route_entries = \Spyc::YAMLLoad($filename, true);
-					foreach ($route_entries as $route => $details) {
-						if (is_array($details) && array_key_exists('url', $details))
-							$route_entries[$route] = Routing::generateRoute($details);
-						else
-							unset($route_entries[$route]);
-					}
-					Cache::add($cachekey, $route_entries);
-					Cache::fileAdd($cachekey, $route_entries);
-				}
-				if (is_array($route_entries))
-					$routes = array_merge($routes, $route_entries);
-			}
+
+			if (file_exists(CASPAR_MODULES_PATH)) {
+                $iterator = new \DirectoryIterator(CASPAR_MODULES_PATH);
+                foreach ($iterator as $fileinfo) {
+                    if ($fileinfo->isDir()) {
+                        $files[$fileinfo->getPathname() . \DS . 'configuration' . \DS . 'routes.yml'] = self::CACHE_KEY_ROUTES_ALL . '_' . $fileinfo->getBasename();
+                    }
+                }
+                foreach ($files as $filename => $cachekey) {
+                    if ($route_entries = Cache::get($cachekey)) {
+                        Logging::log('Using cached route entry for ' . $filename);
+                    } elseif ($route_entries = Cache::fileGet($cachekey)) {
+                        Logging::log('Using file cached route entry for ' . $filename);
+                    } else {
+                        $route_entries = \Spyc::YAMLLoad($filename, true);
+                        foreach ($route_entries as $route => $details) {
+                            if (is_array($details) && array_key_exists('url', $details))
+                                $route_entries[$route] = Routing::generateRoute($details);
+                            else
+                                unset($route_entries[$route]);
+                        }
+                        Cache::add($cachekey, $route_entries);
+                        Cache::fileAdd($cachekey, $route_entries);
+                    }
+                    if (is_array($route_entries))
+                        $routes = array_merge($routes, $route_entries);
+                }
+            }
 		}
 		self::$_configuration['routes'] = $routes;
 	}
@@ -1108,7 +1111,10 @@ class Caspar
 
 		Logging::log((Cache::isInMemorycacheEnabled()) ? 'APC cache is enabled' : 'APC cache is not enabled');
 
-		require CASPAR_APPLICATION_PATH . 'bootstrap.inc.php';
+        $bootstrap_file = CASPAR_APPLICATION_PATH . 'bootstrap.inc.php';
+        if (file_exists($bootstrap_file)) {
+            require $bootstrap_file;
+        }
 
 		self::loadConfiguration();
 		self::initializeServices();
