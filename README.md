@@ -18,10 +18,19 @@ running `composer require thebuggenie/caspar`. This will download and install ca
 and add it to your project's `composer.json` (if you haven't created a `composer.json` yet, 
 running the command will create one for you.
 
+### Running commands from the command line
+Caspar provides a binary through composer, available as `vendor/bin/caspar`. On unix
+systems, this binary will run through php automatically. On windows, you will have
+to execute it through php by running it prefixed with `php` or `php.exe`.
+
+**Important**: Make sure the `php` executable is running the same version as your web
+server, and that they are both at least version 7.1. You can check which version your
+php command line executable is running as, by executing `php --version`. 
+
 ## Create the application skeleton for your app
 Caspar requires a specific directory structure to function, as it expects your files to 
 follow a certain convention. To get you started, create the default application skeleton
-by running the `create_app` command from your project folder (substitute `MyApp` with the 
+by running the caspar `create_app` command from your project folder (substitute `MyApp` with the 
 name of your application without spaces):
 ```
 vendor/bin/caspar create_app MyApp
