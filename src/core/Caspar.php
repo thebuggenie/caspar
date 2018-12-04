@@ -2,6 +2,10 @@
 
 namespace caspar\core;
 
+use caspar\core\exceptions\ActionNotFoundException;
+use caspar\core\exceptions\CSRFFailureException;
+use caspar\core\exceptions\LibraryNotFoundException;
+
 /**
  * The core class of Caspar
  *
@@ -132,9 +136,16 @@ class Caspar
 	/**
 	 * The action object
 	 *
-	 * @var Actions
+	 * @var Controller
 	 */
 	static protected $_actions;
+
+	/**
+	 * Module instances
+	 *
+	 * @var Module[]
+	 */
+	static protected $_modules;
 
 	/**
 	 * The debugger object
@@ -142,6 +153,22 @@ class Caspar
 	 * @var Debugger
 	 */
 	static protected $_debugger = null;
+
+	/**
+	 * The path relative from url server root
+	 *
+	 * @var string
+	 */
+	protected static $_webroot = null;
+
+	/**
+	 * Stripped version of the $_webroot
+	 *
+	 * @see $_webroot
+	 *
+	 * @var string
+	 */
+	protected static $_stripped_webroot = null;
 
 	/**
 	 * Messages passed on from the previous request
@@ -158,10 +185,24 @@ class Caspar
 	 */
 	public static function getRouting()
 	{
-		if (!is_object(self::$_routing))
-			self::$_routing = new Routing(self::$_configuration['routes']);
-
 		return self::$_routing;
+	}
+
+	protected static function initializeRouting()
+	{
+		self::$_routing = new Routing(self::getCache());
+		self::loadEventListeners(self::$_routing->getListeners());
+	}
+
+	protected static function loadEventListeners($event_listeners)
+	{
+		Logging::log('Loading event listeners');
+		foreach ($event_listeners as $listener)
+		{
+			list($event_module, $event_identifier, $module, $method) = $listener;
+			Event::listen($event_module, $event_identifier, [self::getModule($module), $method]);
+		}
+		Logging::log('... done (loading event listeners)');
 	}
 
 	/**
@@ -206,6 +247,48 @@ class Caspar
 	}
 
 	/**
+	 * Get the subdirectory part of the url
+	 *
+	 * @return string
+	 */
+	public static function getWebroot()
+	{
+		if (self::$_webroot === null)
+		{
+			self::_setWebroot();
+		}
+		return self::$_webroot;
+	}
+
+	/**
+	 * Get the subdirectory part of the url, stripped
+	 *
+	 * @return string
+	 */
+	public static function getStrippedWebroot()
+	{
+		if (self::$_stripped_webroot === null)
+		{
+			self::$_stripped_webroot = (self::isCLI()) ? '' : rtrim(self::getWebroot(), '/');
+		}
+		return self::$_stripped_webroot;
+	}
+
+	/**
+	 * Set the subdirectory part of the url, from the url
+	 */
+	protected static function _setWebroot()
+	{
+		self::$_webroot = defined('CSP_CLI') ? '.' : dirname($_SERVER['PHP_SELF']);
+		if (stristr(PHP_OS, 'WIN'))
+		{
+			self::$_webroot = str_replace("\\", "/", self::$_webroot); /* Windows adds a \ to the URL which we don't want */
+		}
+		if (self::$_webroot[strlen(self::$_webroot) - 1] != '/')
+			self::$_webroot .= '/';
+	}
+
+	/**
 	 * Set that we've started loading
 	 * 
 	 * @param integer $when
@@ -244,7 +327,8 @@ class Caspar
 		$language = self::$_configuration['core']['language'];
 
 		Logging::log('Loading i18n strings');
-		if (!self::$_i18n = self::$_cache->get("i18n_{$language}")) {
+
+		if (self::$_debug_mode || !self::$_i18n = self::$_cache->get("i18n_{$language}")) {
 			Logging::log("Loading strings from file ({$language})");
 			self::$_i18n = new I18n($language);
 			self::$_i18n->initialize();
@@ -487,6 +571,23 @@ class Caspar
 	}
 
 	/**
+	 * @return Module[]
+	 */
+	public static function getModules()
+	{
+		return self::$_modules;
+	}
+
+	/**
+	 * @param string $module_name
+	 * @return Module
+	 */
+	public static function getModule($module_name)
+	{
+		return self::$_modules[$module_name];
+	}
+
+	/**
 	 * Loads a function library
 	 *
 	 * @param string $lib_name The name of the library
@@ -544,7 +645,7 @@ class Caspar
     /**
      * Performs an action
      *
-     * @param Actions $actionObject
+     * @param Controller $actionObject
      * @param string $module Name of the action
      * @param string $method Name of the action method to run
      * @return bool
@@ -553,7 +654,7 @@ class Caspar
      * @throws LibraryNotFoundException
      * @throws TemplateNotFoundException
      */
-	public static function performAction(Actions $actionObject, $module, $method)
+	public static function performAction(Controller $actionObject, $module, $method)
 	{
 		// Set content variable
 		$content = null;
@@ -562,9 +663,9 @@ class Caspar
 		$template_path = CASPAR_MODULES_PATH . $module . DS . 'templates' . DS;
 
 		// Construct the action class and method name, including any pre- action(s)
+		$actionClassName = get_class($actionObject);
 		$actionToRunName = 'run' . ucfirst($method);
 		$preActionToRunName = 'pre' . ucfirst($method);
-		$actionClassName = get_class($actionObject);
 
 		// Set up the response object, responsible for controlling any output
 		self::getResponse()->setPage(self::getRouting()->getCurrentRouteName());
@@ -755,21 +856,48 @@ class Caspar
 				}
                 // Set up the action object
                 $module = $route['module'];
-				$action = $route['action'];
-                $actionClassName = "\\application\\modules\\$module\\Actions";
-                $actionObject = new $actionClassName();
+
+	            /**
+	             * Set up the action object by identifying the Controller from the action. The following actions can
+	             * be resolved by the Framework:
+	             *
+	             *  actionName          => /controllers/Main.php::runActionName()
+	             *  ::actionName        => /controllers/Main.php::runActionName()
+	             *  Other::actionName   => /controllers/Other.php::runActionName()
+	             *
+	             **/
+
+	            $actionClassBase = "\\application\\modules\\".$route['module'].'\\controllers\\';
+
+	            // If a separate controller is defined within the action name
+	            if (strpos($route['action'], '::')) {
+		            $routing = explode('::', $route['action']);
+
+		            $moduleController = $actionClassBase . $routing[0];
+		            $moduleMethod = $routing[1];
+
+		            if (class_exists($moduleController) && is_callable($moduleController, 'run'.ucfirst($moduleMethod))) {
+			            $actionObject = new $moduleController();
+		            } else {
+			            throw new \Exception('The `' . $route['action'] . '` controller action is not callable');
+		            }
+	            } else {
+		            $actionClassName = $actionClassBase . 'Main';
+		            $actionObject = new $actionClassName();
+		            $moduleMethod = $route['action'];
+	            }
 
 			} else {
                 $actionObject = new \caspar\core\controllers\Common();
                 $module = 'main';
-                $action = 'notFound';
+                $moduleMethod = 'notFound';
 			}
 
 			self::$_actions = $actionObject;
 
             self::initializeUser();
 
-            if (self::performAction($actionObject, $module, $action)) {
+            if (self::performAction($actionObject, $module, $moduleMethod)) {
                 return true;
             }
 		} catch (TemplateNotFoundException $e) {
@@ -799,7 +927,7 @@ class Caspar
     /**
      * Returns the current action object
      *
-     * @return Actions
+     * @return Controller
      */
     public static function getCurrentAction()
     {
@@ -946,7 +1074,7 @@ class Caspar
 
 	protected static function _loadEnvironmentConfiguration($environment = null)
 	{
-		if ($configuration = self::$_cache->get(self::CACHE_KEY_SETTINGS . $environment)) {
+		if (!self::$_debug_mode && $configuration = self::$_cache->get(self::CACHE_KEY_SETTINGS . $environment)) {
 			if (self::$_cache->getType() == Cache::TYPE_APC) {
 				Logging::log('Using cached configuration');
 			} else {
@@ -1041,44 +1169,11 @@ class Caspar
 		return self::$_services[$service];
 	}
 
-	public static function loadRoutes()
+	public static function registerErrorHandlers()
 	{
-		if ($routes = self::$_cache->get(self::CACHE_KEY_ROUTES_ALL)) {
-			if (self::$_cache->getType() == Cache::TYPE_APC) {
-				Logging::log('Using cached routes');
-			} else {
-				Logging::log('Using file cached routes');
-			}
-		} else {
-			$routes = [];
-			$files = [\CASPAR_APPLICATION_PATH . 'configuration' . \DS . 'routes.yml' => self::CACHE_KEY_ROUTES_APPLICATION];
-
-			if (file_exists(CASPAR_MODULES_PATH)) {
-                $iterator = new \DirectoryIterator(CASPAR_MODULES_PATH);
-                foreach ($iterator as $fileinfo) {
-                    if ($fileinfo->isDir()) {
-                        $files[$fileinfo->getPathname() . \DS . 'configuration' . \DS . 'routes.yml'] = self::CACHE_KEY_ROUTES_ALL . '_' . $fileinfo->getBasename();
-                    }
-                }
-                foreach ($files as $filename => $cachekey) {
-                    if ($route_entries = self::$_cache->get($cachekey)) {
-                        Logging::log('Using cached route entry for ' . $filename);
-                    } else {
-                        $route_entries = \Spyc::YAMLLoad($filename, true);
-                        foreach ($route_entries as $route => $details) {
-                            if (is_array($details) && array_key_exists('url', $details))
-                                $route_entries[$route] = Routing::generateRoute($details);
-                            else
-                                unset($route_entries[$route]);
-                        }
-                        self::$_cache->set($cachekey, $route_entries);
-                    }
-                    if (is_array($route_entries))
-                        $routes = array_merge($routes, $route_entries);
-                }
-            }
-		}
-		self::$_configuration['routes'] = $routes;
+		set_exception_handler([self::class, 'exceptionHandler']);
+		set_error_handler([self::class, 'errorHandler']);
+		error_reporting(E_ALL | E_NOTICE | E_STRICT);
 	}
 
 	public static function bootstrap()
@@ -1101,11 +1196,6 @@ class Caspar
         defined('CASPAR_MODULES_PATH') || define('CASPAR_MODULES_PATH', CASPAR_APPLICATION_PATH . 'modules' . DS);
         defined('CASPAR_ENTITIES_PATH') || define('CASPAR_ENTITIES_PATH', CASPAR_APPLICATION_PATH . 'entities' . DS);
         defined('CASPAR_SESSION_NAME') || define('CASPAR_SESSION_NAME', 'CASPAR_SESSION');
-
-        // Set up error and exception handling
-        set_exception_handler([self::class, 'exceptionHandler']);
-        set_error_handler([self::class, 'errorHandler']);
-        error_reporting(E_ALL | E_NOTICE | E_STRICT);
 
         if (!isset($GLOBALS['argc']) && !ini_get('session.auto_start')) {
             session_name(CASPAR_SESSION_NAME);
@@ -1130,6 +1220,30 @@ class Caspar
 	public static function getCache()
 	{
 		return self::$_cache;
+	}
+
+	protected static function loadModules()
+	{
+		self::$_modules = [];
+
+		if (file_exists(CASPAR_MODULES_PATH)) {
+			$iterator = new \DirectoryIterator(CASPAR_MODULES_PATH);
+			foreach ($iterator as $fileinfo)
+			{
+				if ($fileinfo->isDir())
+				{
+					$module_name = $fileinfo->getBasename();
+					$classname = '\\application\\modules\\' . $module_name . ucfirst($module_name);
+					if (class_exists($classname)) {
+						$module = new $classname($module_name);
+					} else {
+						$module = new Module($module_name);
+					}
+
+					self::$_modules[$module_name] = $module;
+				}
+			}
+		}
 	}
 
 	public static function initialize()
@@ -1159,7 +1273,8 @@ class Caspar
 		self::loadConfiguration();
 		self::initializeServices();
 
-		self::loadRoutes();
+		self::loadModules();
+		self::initializeRouting();
 
 		Logging::log('Caspar framework loaded');
 		$event = Event::createNew('caspar/core', 'post_initialize')->trigger();

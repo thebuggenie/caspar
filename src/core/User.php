@@ -137,11 +137,11 @@
 		
         /**
          * @param Request $request
-         * @param Actions $action
+         * @param Controller $action
          * @param bool $auto
          * @return User
          */
-		public static function identify(Request $request, Actions $action, $auto = false)
+		public static function identify(Request $request, Controller $action, $auto = false)
 		{
 			return new User();
 		}

@@ -2,6 +2,8 @@
 
 	namespace caspar\core;
 	
+	use caspar\core\exceptions\ComponentNotFoundException;
+
 	/**
 	 * Action component class used in the MVC part of the framework
 	 *

@@ -4,7 +4,7 @@
 
     use application\entities\tables\Users;
     use application\entities\tables\UserTokens;
-    use caspar\core\Actions;
+    use caspar\core\Controller;
     use caspar\core\Caspar;
     use caspar\core\Logging;
     use caspar\core\Request;
@@ -181,7 +181,7 @@
 		    }
 	    }
 
-	    public static function identify(Request $request, Actions $action, $auto = false)
+	    public static function identify(Request $request, Controller $action, $auto = false)
 	    {
 		    if ($auto) {
 			    $user = static::autoVerifyToken($request->getCookie('username'), $request->getCookie('session_token'));

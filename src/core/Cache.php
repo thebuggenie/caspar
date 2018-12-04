@@ -44,7 +44,7 @@
 
 			if (isset($options['path'])) {
 				if (!file_exists($options['path'])) {
-					throw new \RuntimeException("Configured cache path ({$options['path']}) is not writable. Please check your configuration.");
+					throw new \Exception("Configured cache path ({$options['path']}) is not writable. Please check your configuration.");
 				}
 
 				$this->path = $options['path'];

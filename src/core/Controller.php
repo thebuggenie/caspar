@@ -18,9 +18,9 @@
 	 * @package caspar
 	 * @subpackage mvc
 	 */
-	class Actions extends Parameterholder
+	class Controller extends Parameterholder
 	{
-		
+
 		/**
 		 * Forward the user to a specified url
 		 * 
@@ -34,9 +34,9 @@
 			{
 				$this->getResponse()->ajaxResponseText($code, Caspar::getMessageAndClear('forward'));
 			}
-			\caspar\core\Logging::log("Forwarding to url {$url}");
+			Logging::log("Forwarding to url {$url}");
 			
-			\caspar\core\Logging::log('Triggering header redirect function');
+			Logging::log('Triggering header redirect function');
 			$this->getResponse()->headerRedirect($url, $code);
 		}
 
@@ -76,24 +76,23 @@
 			echo $text;
 			return true;
 		}
-		
+
 		/**
 		 * Renders JSON output, also takes care of setting the correct headers
-		 * 
-		 * @param array $content The array to render
-		 *  
+		 *
+		 * @param array $text
 		 * @return boolean
 		 */
-		public function renderJSON($text = array())
+		public function renderJSON($text = [])
 		{
 			$this->getResponse()->setContentType('application/json');
 			$this->getResponse()->setDecoration(Response::DECORATE_NONE);
 
-			if (false && \caspar\core\Caspar::isDebugMode()) {
+			if (false && Caspar::isDebugMode()) {
 				$json_data = $text;
-				\caspar\core\Caspar::getDebugger()->setJsonOutput($json_data);
+				Caspar::getDebugger()->setJsonOutput($json_data);
 
-				$json_data['csp-debugger'] = \caspar\core\Caspar::getDebugger()->returnCurrentPageRow();
+				$json_data['csp-debugger'] = Caspar::getDebugger()->returnCurrentPageRow();
 				echo json_encode($json_data);
 				return true;
 			}
@@ -145,7 +144,7 @@
 		/**
 		 * Sets the response to 404 and shows an error, with an optional message
 		 * 
-		 * @param string $message[optional] The message
+		 * @param string $message The message
 		 */
 		public function return404($message = null)
 		{
@@ -203,7 +202,7 @@
 		 */
 		public function renderTemplate($template, $params = array())
 		{
-			echo \caspar\core\Components::includeTemplate($template, $params);
+			echo Components::includeTemplate($template, $params);
 			return true;
 		}
 
@@ -217,7 +216,7 @@
 		 */
 		public function renderComponent($template, $params = array())
 		{
-			echo \caspar\core\Components::includeComponent($template, $params);
+			echo Components::includeComponent($template, $params);
 			return true;
 		}
 
@@ -233,7 +232,7 @@
 		{
 			$current_content = ob_get_clean();
 			(Caspar::isCLI()) ? ob_start() : ob_start('mb_output_handler');
-			echo \caspar\core\Components::includeComponent($template, $params);
+			echo Components::includeComponent($template, $params);
 			$component_content = ob_get_clean();
 			(Caspar::isCLI()) ? ob_start() : ob_start('mb_output_handler');
 			echo $current_content;
@@ -265,7 +264,7 @@
 		{
 			$current_content = ob_get_clean();
 			(Caspar::isCLI()) ? ob_start() : ob_start('mb_output_handler');
-			echo \caspar\core\Components::includeTemplate($template, $params);
+			echo Components::includeTemplate($template, $params);
 			$template_content = ob_get_clean();
 			(Caspar::isCLI()) ? ob_start() : ob_start('mb_output_handler');
 			echo $current_content;

@@ -252,16 +252,25 @@
 
         protected function createApplicationClasses(): void
         {
-            $login_traits = CASPAR_APPLICATION_PATH . DS . 'traits' . DS . 'LoginFunctions.php';
-            $main_controller = CASPAR_MODULES_PATH . 'main' . DS . 'Actions.php';
+            $login_traits = CASPAR_APPLICATION_PATH . 'traits' . DS . 'LoginFunctions.php';
+            $main_controller = CASPAR_MODULES_PATH . 'main' . DS . 'controllers' . DS . 'Main.php';
             $main_components = CASPAR_MODULES_PATH . 'main' . DS . 'Components.php';
 
-            if (!file_exists($main_controller)) {
-                file_put_contents($main_controller, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'Actions.php'));
+            if (!file_exists($login_traits)) {
+                file_put_contents($login_traits, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'LoginFunctions.php'));
 
                 $this->cliEcho('* created ', 'green');
-                $this->cliEcho('application' . DS . 'modules' . DS . 'main' . DS, 'white', 'bold');
-                $this->cliEcho('Actions.php', 'yellow', 'bold');
+                $this->cliEcho('application' . DS . 'traits' . DS, 'white', 'bold');
+                $this->cliEcho('LoginFunctions.php', 'yellow', 'bold');
+                $this->cliEcho(" file\n", 'green');
+            }
+
+            if (!file_exists($main_controller)) {
+                file_put_contents($main_controller, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'Main.php'));
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'modules' . DS . 'main' . DS . 'controllers' . DS, 'white', 'bold');
+                $this->cliEcho('Main.php', 'yellow', 'bold');
                 $this->cliEcho(" file\n", 'green');
             }
 
@@ -277,6 +286,14 @@
 
         protected function createApplicationFolders(): void
         {
+            if (!is_dir(CASPAR_APPLICATION_PATH . DS . 'cache')) {
+                mkdir(CASPAR_APPLICATION_PATH . DS . 'cache', 0777);
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'cache', 'white', 'bold');
+                $this->cliEcho(" folder\n", 'green');
+            }
+
             if (!is_dir(CASPAR_APPLICATION_PATH . DS . 'configuration')) {
                 mkdir(CASPAR_APPLICATION_PATH . DS . 'configuration', 0777);
 
@@ -349,6 +366,14 @@
                 $this->cliEcho(" folder\n", 'green');
             }
 
+            if (!is_dir(CASPAR_APPLICATION_PATH . DS . 'modules' . DS . 'main' . DS . 'controllers')) {
+                mkdir(CASPAR_APPLICATION_PATH . DS . 'modules' . DS . 'main' . DS . 'controllers', 0777);
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'modules' . DS . 'main' . DS . 'controllers', 'white', 'bold');
+                $this->cliEcho(" folder\n", 'green');
+            }
+
             if (!is_dir(CASPAR_APPLICATION_PATH . DS . 'modules' . DS . 'main' . DS . 'templates')) {
                 mkdir(CASPAR_APPLICATION_PATH . DS . 'modules' . DS . 'main' . DS . 'templates', 0777);
 
@@ -362,6 +387,14 @@
 
                 $this->cliEcho('* created ', 'green');
                 $this->cliEcho('application' . DS . 'templates', 'white', 'bold');
+                $this->cliEcho(" folder\n", 'green');
+            }
+
+            if (!is_dir(CASPAR_APPLICATION_PATH . DS . 'traits')) {
+                mkdir(CASPAR_APPLICATION_PATH . DS . 'traits', 0777);
+
+                $this->cliEcho('* created ', 'green');
+                $this->cliEcho('application' . DS . 'traits', 'white', 'bold');
                 $this->cliEcho(" folder\n", 'green');
             }
 

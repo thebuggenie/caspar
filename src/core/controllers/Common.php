@@ -2,13 +2,13 @@
 
 namespace caspar\core\controllers;
 
-use caspar\core\Actions;
+use caspar\core\Controller;
 use caspar\core\Request;
 
 /**
  * actions for the main module
  */
-class Common extends Actions
+class Common extends Controller
 {
 
     /**

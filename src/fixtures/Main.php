@@ -1,6 +1,6 @@
 <?php
 
-    namespace application\modules\main;
+    namespace application\modules\main\controllers;
 
     use caspar\core\Request;
     use application\traits\LoginFunctions;
@@ -8,7 +8,7 @@
     /**
      * Actions for the main module
      */
-    class Actions extends \caspar\core\Actions
+    class Main extends \caspar\core\Controller
     {
 
         use LoginFunctions;

@@ -104,7 +104,7 @@
 	 */
 	function get_template_html($template, $params = array())
 	{
-		return \caspar\core\Actions::returnTemplateHTML($template, $params);
+		return \caspar\core\Controller::returnTemplateHTML($template, $params);
 	}
 
 	/**
@@ -126,7 +126,7 @@
 	 */
 	function get_component_html($component, $params = array())
 	{
-		return \caspar\core\Actions::returnComponentHTML($component, $params);
+		return \caspar\core\Controller::returnComponentHTML($component, $params);
 	}
 
 	/**

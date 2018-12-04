@@ -14,6 +14,8 @@
 
     require CASPAR_BASE_PATH . 'vendor' . DS . 'autoload.php';
 
+	\caspar\core\Caspar::registerErrorHandlers();
+
 	// Set runtime environment
 	\caspar\core\Caspar::setEnvironment('dev');
 

@@ -20,7 +20,9 @@ try
         require CASPAR_PATH . 'vendor' . DS . 'autoload.php';
     }
 
-    // Initialize caspar
+	caspar\core\Caspar::registerErrorHandlers();
+
+	// Initialize caspar
     caspar\core\Caspar::initialize();
 }
 catch (Exception $e)
