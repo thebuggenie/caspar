@@ -61,37 +61,16 @@
 
 				try
 				{
-					// Check if the class is cacheable as well
-					$cacheable = in_array($classname, array('TBGProject', 'TBGStatus', 'TBGPriority', 'TBGCategory', 'TBGUserstate'));
-					$item = null;
-
-					// If the class is cacheable, check if it exists in the cache
-					if ($cacheable)
-					{
-						if ($item = Cache::get("TBGFactory_cache{$factory_array_name}_{$id}"))
-						{
-							Logging::log("Using cached $classname with id $id");
-						}
-					}
-
-					// If we didn't get an item from the cache, manufacture it
-					if (!$cacheable || !is_object($item))
-					{
-						$item = new $classname($id, $row);
-						Logging::log("Manufacturing $classname with id $id");
-
-						// Add the item to the cache if it's cacheable
-						if ($cacheable)
-						{
-							Cache::add("TBGFactory_cache{$factory_array_name}_{$id}", $item);
-						}
-					}
+					$item = new $classname($id, $row);
+					Logging::log("Manufacturing $classname with id $id");
 
 					// Add the manufactured item to the manufactured array
 					$this->{$factory_array_name}[$id] = $item;
 				}
-				catch (Exception $e)
+				catch (\Exception $e)
 				{
+					Logging::log("An exception occurred when manufacturing $classname with id $id");
+
 					throw $e;
 				}
 			}

@@ -39,6 +39,11 @@ class Caspar
 	static protected $_ver_name;
 
 	/**
+	 * @var Cache
+	 */
+	static protected $_cache;
+
+	/**
 	 * The current user
 	 *
 	 * @var User
@@ -239,11 +244,11 @@ class Caspar
 		$language = self::$_configuration['core']['language'];
 
 		Logging::log('Loading i18n strings');
-		if (!self::$_i18n = Cache::get("i18n_{$language}")) {
+		if (!self::$_i18n = self::$_cache->get("i18n_{$language}")) {
 			Logging::log("Loading strings from file ({$language})");
 			self::$_i18n = new I18n($language);
 			self::$_i18n->initialize();
-			Cache::add("i18n_{$language}", self::$_i18n);
+			self::$_cache->set("i18n_{$language}", self::$_i18n);
 		} else {
 			Logging::log('Using cached i18n strings');
 		}
@@ -941,16 +946,17 @@ class Caspar
 
 	protected static function _loadEnvironmentConfiguration($environment = null)
 	{
-		if ($configuration = Cache::get(self::CACHE_KEY_SETTINGS . $environment)) {
-			Logging::log('Using cached configuration');
-		} elseif ($configuration = Cache::fileGet(self::CACHE_KEY_SETTINGS . $environment)) {
-			Logging::log('Using file cached configuration');
+		if ($configuration = self::$_cache->get(self::CACHE_KEY_SETTINGS . $environment)) {
+			if (self::$_cache->getType() == Cache::TYPE_APC) {
+				Logging::log('Using cached configuration');
+			} else {
+				Logging::log('Using file cached configuration');
+			}
 		} else {
 			Logging::log('Configuration not cached. Retrieving configuration from file');
 			$filename = \CASPAR_APPLICATION_PATH . 'configuration' . \DS . "caspar{$environment}.yml";
 			$configuration = (file_exists($filename)) ? \Spyc::YAMLLoad($filename, true) : [];
-			Cache::add(self::CACHE_KEY_SETTINGS . $environment, $configuration);
-			Cache::fileAdd(self::CACHE_KEY_SETTINGS . $environment, $configuration);
+			self::$_cache->set(self::CACHE_KEY_SETTINGS . $environment, $configuration);
 			Logging::log('Configuration loaded');
 		}
 		return $configuration;
@@ -985,6 +991,11 @@ class Caspar
 		}
 	}
 
+	protected static function initializeService($service, $configuration)
+	{
+
+	}
+
 	protected static function initializeServices()
 	{
 		if (!is_array(self::$_serviceconfigurations)) {
@@ -997,11 +1008,9 @@ class Caspar
                             $callback = $configuration['callback'];
                             $arguments = array_key_exists('arguments', $configuration) ? $configuration['arguments'] : [];
                             if (!is_callable($callback)) {
-
                                 throw new \Exception('Cannot auto-initialize service ' . $service . ', invalid auto-initialize method.');
-
                             }
-                            call_user_func($callback, $arguments);
+                            call_user_func_array($callback, $arguments);
                         }
                     }
                 } catch (\Exception $e) {
@@ -1024,19 +1033,20 @@ class Caspar
 	public static function getService($service)
 	{
 		if (!array_key_exists($service, self::$_services)) {
-			$configuration = self::getServiceConfiguration($service);
-			$classname = $configuration['classname'];
-			self::$_services[$service] = new $classname($configuration['arguments']);
+			throw new \Exception("The {$service} service has not been configured in caspar.yml");
 		}
+
 		return self::$_services[$service];
 	}
 
 	public static function loadRoutes()
 	{
-		if ($routes = Cache::get(self::CACHE_KEY_ROUTES_ALL)) {
-			Logging::log('Using cached routes');
-		} elseif ($routes = Cache::fileGet(self::CACHE_KEY_ROUTES_ALL)) {
-			Logging::log('Using file cached routes');
+		if ($routes = self::$_cache->get(self::CACHE_KEY_ROUTES_ALL)) {
+			if (self::$_cache->getType() == Cache::TYPE_APC) {
+				Logging::log('Using cached routes');
+			} else {
+				Logging::log('Using file cached routes');
+			}
 		} else {
 			$routes = [];
 			$files = [\CASPAR_APPLICATION_PATH . 'configuration' . \DS . 'routes.yml' => self::CACHE_KEY_ROUTES_APPLICATION];
@@ -1049,10 +1059,8 @@ class Caspar
                     }
                 }
                 foreach ($files as $filename => $cachekey) {
-                    if ($route_entries = Cache::get($cachekey)) {
+                    if ($route_entries = self::$_cache->get($cachekey)) {
                         Logging::log('Using cached route entry for ' . $filename);
-                    } elseif ($route_entries = Cache::fileGet($cachekey)) {
-                        Logging::log('Using file cached route entry for ' . $filename);
                     } else {
                         $route_entries = \Spyc::YAMLLoad($filename, true);
                         foreach ($route_entries as $route => $details) {
@@ -1061,8 +1069,7 @@ class Caspar
                             else
                                 unset($route_entries[$route]);
                         }
-                        Cache::add($cachekey, $route_entries);
-                        Cache::fileAdd($cachekey, $route_entries);
+                        self::$_cache->set($cachekey, $route_entries);
                     }
                     if (is_array($route_entries))
                         $routes = array_merge($routes, $route_entries);
@@ -1091,8 +1098,7 @@ class Caspar
         defined('CASPAR_LIB_PATH') || define('CASPAR_LIB_PATH', CASPAR_PATH . 'libs' . DS);
         defined('CASPAR_MODULES_PATH') || define('CASPAR_MODULES_PATH', CASPAR_APPLICATION_PATH . 'modules' . DS);
         defined('CASPAR_ENTITIES_PATH') || define('CASPAR_ENTITIES_PATH', CASPAR_APPLICATION_PATH . 'entities' . DS);
-        defined('CASPAR_CACHE_PATH') || define('CASPAR_CACHE_PATH', CASPAR_APPLICATION_PATH . 'cache' . DS);
-        defined('CASPAR_SESSION_NAME') || defined('CASPAR_SESSION_NAME') || define('CASPAR_SESSION_NAME', 'CASPAR_SESSION');
+        defined('CASPAR_SESSION_NAME') || define('CASPAR_SESSION_NAME', 'CASPAR_SESSION');
 
         // Set up error and exception handling
         set_exception_handler([self::class, 'exceptionHandler']);
@@ -1103,6 +1109,25 @@ class Caspar
             session_name(CASPAR_SESSION_NAME);
             session_start();
         }
+	}
+
+	protected static function verifyCache()
+	{
+
+		if (!self::$_cache instanceof Cache) {
+			self::$_cache = new Cache(Cache::TYPE_DUMMY);
+		}
+
+		Logging::log(self::$_cache->getCacheTypeDescription() . ' enabled');
+
+	}
+
+	/**
+	 * @return Cache
+	 */
+	public static function getCache()
+	{
+		return self::$_cache;
 	}
 
 	public static function initialize()
@@ -1122,7 +1147,7 @@ class Caspar
 		Logging::log('PHP_VERSION_ID says "' . \PHP_VERSION_ID . '"');
 		Logging::log('PHP_VERSION says "' . \PHP_VERSION . '"');
 
-		Logging::log((Cache::isInMemorycacheEnabled()) ? 'APC cache is enabled' : 'APC cache is not enabled');
+		self::verifyCache();
 
         $bootstrap_file = CASPAR_APPLICATION_PATH . 'bootstrap.inc.php';
         if (file_exists($bootstrap_file)) {
@@ -1151,14 +1176,9 @@ class Caspar
 		return self::$_environment;
 	}
 
-	public static function setCacheStrategy($in_memory = [], $filecache = [])
+	public static function setCacheStrategy(Cache $cache)
 	{
-		$in_memory_enabled = (array_key_exists('enabled', $in_memory) && $in_memory['enabled']);
-		$in_memory_type = ($in_memory_enabled) ? $in_memory['type'] : null;
-		$filecache_enabled = (array_key_exists('enabled', $filecache) && $filecache['enabled']);
-		$filecache_path = ($filecache_enabled) ? $filecache['path'] : null;
-		Cache::setInMemorycacheStrategy($in_memory_enabled, $in_memory_type);
-		Cache::setFilecacheStrategy($filecache_enabled, $filecache_path);
+		self::$_cache = $cache;
 	}
 
 	public static function isMaintenanceModeEnabled()

@@ -87,12 +87,15 @@
                             'auto_initialize' => true,
                             'callback' => ['\b2db\Core', 'initialize'],
                             'arguments' => [
-                                'driver' => 'mysql',
-                                'hostname' => '',
-                                'username' => '',
-                                'password' => '',
-                                'database' => '',
-                                'tableprefix' => ''
+                            	[
+	                                'driver' => 'mysql',
+	                                'hostname' => '',
+	                                'username' => '',
+	                                'password' => '',
+	                                'database' => '',
+	                                'tableprefix' => ''
+	                            ],
+	                            ['\caspar\core\Caspar', 'getCache']
                             ]
                         ]
                     ]

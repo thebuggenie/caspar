@@ -9,16 +9,17 @@
     define('CASPAR_BASE_PATH', realpath(getcwd() . DS . '..' . DS) . DS);
     define('CASPAR_PATH', CASPAR_BASE_PATH . 'vendor' . DS . 'thebuggenie' . DS . 'caspar' . DS . 'src' . DS);
     define('CASPAR_APPLICATION_PATH', CASPAR_BASE_PATH . 'application' . DS);
-    define('CASPAR_SESSION_NAME', 'CASPAR');
+	define('CASPAR_CACHE_PATH', CASPAR_APPLICATION_PATH . 'cache' . DS);
+	define('CASPAR_SESSION_NAME', 'CASPAR');
 
     require CASPAR_BASE_PATH . 'vendor' . DS . 'autoload.php';
 
 	// Set runtime environment
 	\caspar\core\Caspar::setEnvironment('dev');
-	\caspar\core\Caspar::setCacheStrategy(
-	    ['enabled' => false, 'type' => \caspar\core\Cache::TYPE_APC],
-        ['enabled' => false, 'path' => CASPAR_CACHE_PATH]
-    );
+
+	// Uncomment one of the following lines to enable file or memory-based cache
+	\caspar\core\Caspar::setCacheStrategy(new \caspar\core\Cache(\caspar\core\Cache::TYPE_FILE, ['path' => CASPAR_CACHE_PATH]));
+	// \caspar\core\Caspar::setCacheStrategy(new \caspar\core\Cache(\caspar\core\Cache::TYPE_APC));
 
 	// Initialize framework
 	caspar\core\Caspar::initialize();
