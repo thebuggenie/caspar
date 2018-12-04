@@ -179,5 +179,31 @@
 					unlink($filename);
 			}
 		}
-		
+
+		/**
+		 * Set the enabled property
+		 *
+		 * @param bool $value
+		 */
+		public function setEnabled($value)
+		{
+			$this->enabled = $value;
+		}
+
+		/**
+		 * Temporarily disable the cache
+		 */
+		public function disable()
+		{
+			$this->setEnabled(false);
+		}
+
+		/**
+		 * (Re-)enable the cache
+		 */
+		public function enable()
+		{
+			$this->setEnabled(true);
+		}
+
 	}

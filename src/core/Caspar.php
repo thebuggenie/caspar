@@ -1033,7 +1033,9 @@ class Caspar
 	public static function getService($service)
 	{
 		if (!array_key_exists($service, self::$_services)) {
-			throw new \Exception("The {$service} service has not been configured in caspar.yml");
+			$configuration = self::getServiceConfiguration($service);
+			$classname = $configuration['classname'];
+			self::$_services[$service] = new $classname(... $configuration['arguments']);
 		}
 
 		return self::$_services[$service];
