@@ -86,28 +86,6 @@
 	}
 	
 	/**
-	 * Includes a template with specified parameters
-	 *
-	 * @param string	$template	name of template to load, or module/template to load
-	 * @param array 	$params  	key => value pairs of parameters for the template
-	 */
-	function include_template($template, $params = array())
-	{
-		return \caspar\core\Components::includeTemplate($template, $params);
-	}
-
-	/**
-	 * Return a rendered template with specified parameters
-	 *
-	 * @param string	$template	name of template to load, or module/template to load
-	 * @param array 	$params  	key => value pairs of parameters for the template
-	 */
-	function get_template_html($template, $params = array())
-	{
-		return \caspar\core\Controller::returnTemplateHTML($template, $params);
-	}
-
-	/**
 	 * Includes a component with specified parameters
 	 *
 	 * @param string	$component	name of component to load, or module/component to load

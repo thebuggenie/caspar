@@ -2,7 +2,7 @@ Caspar lightweight MVC framework for PHP applications
 =====================================================
 
 # Introduction
-Caspar is a lightweight MVC-based framework for PHP 7.1 (or newer) applications. 
+Caspar is a lightweight, no-nonsense MVC framework for building modern PHP applications (7.1 or newer). 
 
 # Getting started
 

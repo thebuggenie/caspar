@@ -190,15 +190,18 @@
 			if (mb_strpos($template, '/')) {
 				$templateinfo = explode('/', $template);
 				$module = $templateinfo[0];
-				$templatefile = ($is_component) ? '_' . $templateinfo[1] . '.inc.php' : $templateinfo[1] . '.' . Caspar::getRequest()->getRequestedFormat() . '.php';
+				$templatefile = ($is_component) ? $templateinfo[1] . '.php' : $templateinfo[1] . '.' . Caspar::getRequest()->getRequestedFormat() . '.php';
 			} else {
 				$module = Caspar::getRouting()->getCurrentRouteModule();
-				$templatefile = ($is_component) ? '_' . $template . '.inc.php' : $template . '.' . Caspar::getRequest()->getRequestedFormat() . '.php';
+				$templatefile = ($is_component) ? $template . '.php' : $template . '.' . Caspar::getRequest()->getRequestedFormat() . '.php';
 			}
-			if (file_exists(CASPAR_MODULES_PATH . $module . DS . 'i18n' . DS . $this->_language . DS . 'templates' . DS . $templatefile)) {
-				return CASPAR_MODULES_PATH . $module . DS . 'i18n' . DS . $this->_language . DS . 'templates' . DS . $templatefile;
-			} elseif (file_exists(CASPAR_CORE_PATH . 'i18n' . DS . $this->getCurrentLanguage() . DS . 'templates' . DS . $module . DS . $templatefile)) {
-				return CASPAR_CORE_PATH . 'i18n' . DS . $this->getCurrentLanguage() . DS . 'templates' . DS . $module . DS . $templatefile;
+
+			$template_folder = ($is_component) ? 'components' : 'templates';
+
+			if (file_exists(CASPAR_MODULES_PATH . $module . DS . 'i18n' . DS . $this->_language . DS . $template_folder . DS . $templatefile)) {
+				return CASPAR_MODULES_PATH . $module . DS . 'i18n' . DS . $this->_language . DS . $template_folder . DS . $templatefile;
+			} elseif (file_exists(CASPAR_CORE_PATH . 'i18n' . DS . $this->getCurrentLanguage() . DS . $template_folder . DS . $module . DS . $templatefile)) {
+				return CASPAR_CORE_PATH . 'i18n' . DS . $this->getCurrentLanguage() . DS . $template_folder . DS . $module . DS . $templatefile;
 			}
 			return false;
 		}

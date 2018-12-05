@@ -191,20 +191,6 @@
 		{
 			$this->forward403unless(!$condition, $message);
 		}
-		
-		/**
-		 * Render a template
-		 * 
-		 * @param string $template the template name
-		 * @param array $params template parameters
-		 * 
-		 * @return boolean 
-		 */
-		public function renderTemplate($template, $params = array())
-		{
-			echo Components::includeTemplate($template, $params);
-			return true;
-		}
 
 		/**
 		 * Render a component
@@ -252,36 +238,4 @@
 			return self::returnComponentHTML($template, $params);
 		}
 
-		/**
-		 * Returns the HTML output from a template, but doesn't render it
-		 *
-		 * @param string $template the template name
-		 * @param array $params template parameters
-		 *
-		 * @return boolean
-		 */
-		public static function returnTemplateHTML($template, $params = array())
-		{
-			$current_content = ob_get_clean();
-			(Caspar::isCLI()) ? ob_start() : ob_start('mb_output_handler');
-			echo Components::includeTemplate($template, $params);
-			$template_content = ob_get_clean();
-			(Caspar::isCLI()) ? ob_start() : ob_start('mb_output_handler');
-			echo $current_content;
-			return $template_content;
-		}
-
-		/**
-		 * Returns the HTML output from a template, but doesn't render it
-		 * 
-		 * @param string $template the template name
-		 * @param array $params template parameters
-		 * 
-		 * @return boolean
-		 */
-		public function getTemplateHTML($template, $params = array())
-		{
-			return self::returnTemplateHTML($template, $params);
-		}
-		
 	}

@@ -49,7 +49,7 @@
 			if (!isset($module_file)) $module_file = self::getModuleAndTemplate($template);
 			if (Caspar::isCLI() || ($template_name = Caspar::getI18n()->hasTranslatedTemplate($template, true)) === false)
 			{
-				$template_name = \CASPAR_MODULES_PATH . $module_file['module'] . DS . 'templates' . DS . "_{$module_file['file']}.inc.php";
+				$template_name = \CASPAR_MODULES_PATH . $module_file['module'] . DS . 'components' . DS . "{$module_file['file']}.php";
 			}
 			return $template_name;
 		}
@@ -61,7 +61,7 @@
 			if (!file_exists($template_name))
 			{
 				if (!$throw_exceptions) return false;
-				throw new TemplateNotFoundException("The template file <b>_{$module_file['file']}.inc.php</b> cannot be found in the template directory for module \"" . Caspar::getRouting()->getCurrentRouteModule() . '"');
+				throw new TemplateNotFoundException("The component template file <b>{$module_file['file']}.php</b> cannot be found in the template directory for module \"" . Caspar::getRouting()->getCurrentRouteModule() . '"');
 			}
 			if (!$throw_exceptions) return true;
 
@@ -75,6 +75,11 @@
 			$actionToRunName = 'component' . ucfirst($module_file['file']);
 
 			return array($module_file, $actionClassName, $actionToRunName);
+		}
+
+		public static function doesComponentExist($template, $throw_exceptions = true)
+		{
+			return self::_doesComponentExist($template, $throw_exceptions);
 		}
 
 		protected static function _doesComponentExist($template, $throw_exceptions = true)
@@ -111,38 +116,24 @@
 				$time = explode(' ', microtime());
 				$pretime = $time[1] + $time[0];
 			}
-			list ($template_name, $actionClass, $actionToRunName) = self::_doesComponentExist($template);
 
-			foreach ($params as $key => $val)
+			if (self::doesComponentExist($template, false))
 			{
-				$actionClass->$key = $val;
-			}
-			$actionClass->$actionToRunName();
-			self::presentTemplate($template_name, $actionClass->getParameterHolder());
-			if ($debug)
-			{
-				$time = explode(' ', microtime());
-				$posttime = $time[1] + $time[0];
-				Caspar::visitPartial($template, $posttime - $pretime);
-			}
-		}
+				list ($template_name, $actionClass, $actionToRunName) = self::_doesComponentExist($template);
 
-		/**
-		 * Include a template from a module
-		 *
-		 * @param string $template
-		 * @param array $params
-		 */
-		public static function includeTemplate($template, $params = array())
-		{
-			$debug = Caspar::isDebugMode();
-			if ($debug)
-			{
-				$time = explode(' ', microtime());
-				$pretime = $time[1] + $time[0];
+				foreach ($params as $key => $val)
+				{
+					$actionClass->$key = $val;
+				}
+				$actionClass->$actionToRunName();
+				$parameters = $actionClass->getParameterHolder();
 			}
-			$template_name = self::getFinalTemplateName($template);
-			self::presentTemplate($template_name, $params);
+			else
+			{
+				$template_name = self::getFinalTemplateName($template);
+				$parameters = $params;
+			}
+			self::presentTemplate($template_name, $parameters);
 			if ($debug)
 			{
 				$time = explode(' ', microtime());

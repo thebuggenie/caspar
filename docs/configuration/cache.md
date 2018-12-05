@@ -1,5 +1,7 @@
+[Back to Contents](../README.md)
+
 # Caching
-Caspar supports caching using the file system or apc. By default, caspar caches routing definitions, settings and
+Caspar supports caching using the file system or apc. By default, Caspar caches routing definitions, settings and
 translated strings in the cache.
 
 You can define which logging instance to be used by setting the cache strategy. The default caching strategy generated
@@ -11,6 +13,8 @@ File-based caching can be enabled by passing an instance of the `\caspar\core\Ca
 
 Here is an example from the default `index.php` created by the `create_app` command-line task:
 ```php
+<?php
+
 $cache_object = new \caspar\core\Cache(\caspar\core\Cache::TYPE_FILE, ['path' => CASPAR_CACHE_PATH]);
 \caspar\core\Caspar::setCacheStrategy($cache_object);
 ```
@@ -22,6 +26,8 @@ the `application/cache` folder of your application.
 Enable apc-based caching can by passing an instance of the `\caspar\core\Cache` class with type 
 `\caspar\core\Cache::TYPE_APC` to the `\caspar\core\Caspar::setCacheStrategy()` method:
 ```php
+<?php
+
 $cache_object = new \caspar\core\Cache(\caspar\core\Cache::TYPE_APC);
 \caspar\core\Caspar::setCacheStrategy($cache_object);
 ```
@@ -30,6 +36,8 @@ $cache_object = new \caspar\core\Cache(\caspar\core\Cache::TYPE_APC);
 You can temporarily disable the cache by calling the `disable()` method on the cache object:
 
 ```php
+<?php
+
 $cache_object = new \caspar\core\Cache(\caspar\core\Cache::TYPE_APC);
 \caspar\core\Caspar::setCacheStrategy($cache_object);
 
@@ -38,5 +46,6 @@ $cache_object->disable();
 # or
 \caspar\core\Caspar::getCache()->disable();
 ```
+*Example of temporarily disabling the cache*
 
 You can re-enable the cache by calling the `enable()` method on the cache object.

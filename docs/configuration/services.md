@@ -1,9 +1,11 @@
+[Back to Contents](../README.md)
+
 # Configuring services
 Caspar provides lightweight service auto configuration using the `services` configuration section of `caspar.yml`
 
 ## Setting up a service
 Any services that relies on being configured through your application can be configured in the `caspar.yml` file.
-This also works for libraries that needs to be bootstrapped, where caspar can bootstrap and autoconfigure these based
+This also works for libraries that needs to be bootstrapped, where Caspar can bootstrap and autoconfigure these based
 on the configuration provided in the `caspar.yml` file.
 
 There are three types of services, and a service configuration can combine any of these three:
@@ -12,7 +14,7 @@ There are three types of services, and a service configuration can combine any o
 Sometimes you don't need to store the actual service, but need a central location for the service configuration, such
 as smtp settings, etc.
 
-When defining a service without the `classname` property, and without `auto_initialize` set to `true`, caspar does not
+When defining a service without the `classname` property, and without `auto_initialize` set to `true`, Caspar does not
 invoke any methods when storing the service. You can retrieve the service configuration using the
 `\caspar\core\Caspar::getService($service_name)` method.
 
@@ -25,6 +27,7 @@ services:
 	username: thebuggenie1
 	password: FbuAdd3C
 ```
+*Example swiftmailer configuration*
 
 When you need to use this service, you can retrieve it using `\caspar\core\Caspar::getService('swift');`
 
@@ -40,6 +43,7 @@ services:
     arguments:
       - 'my_logger'
 ```
+*Example Monolog service*
 
 The logger object can then be retrieved anywhere in your application using 
 `\caspar\core\Caspar::getService('my_logger');`
@@ -65,8 +69,9 @@ services:
         tableprefix: myapp_
       - [\caspar\core\Caspar, getCache]
 ```
+*Example of auto-configuring the `b2db` ORM so it can be used anywhere*
 
-The above service definition makes caspar bootstrap the library using the callback `\b2db\Core::initialize()`, passing 
+The above service definition makes Caspar bootstrap the library using the callback `\b2db\Core::initialize()`, passing 
 the two arguments defined in `arguments` as parameters to the `initialize()` method.
 
 **Note:** arguments defined in the `arguments` configuration are passed expanded using the php `call_user_func_array()`
