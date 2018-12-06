@@ -1,15 +1,17 @@
 # Contents
 
 ## How-tos
+* [Installation and setup](howtos/installation.md)
 * [MVC Explained](howtos/mvc-explained.md)
-* [Getting started](howtos/getting-started.md)
 
 ## Configuration
 * [Services](configuration/services.md)
 * [Caching](configuration/cache.md)
 
-## Basic usage
+## General documentation
 * [Modules](modules.md)
 * [Routing](routing.md)
 * [Controllers](controllers.md)
 * [Requests](requests.md)
+* [Templates](templates.md)
+  * [Template components](components.md)

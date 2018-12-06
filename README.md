@@ -10,7 +10,7 @@ Caspar is a lightweight, no-nonsense MVC framework for building modern PHP appli
 Caspar uses [composer](https://getcomposer.org) for dependency management, and 
 should be installed and used via composer.
 
-For more information about how to set up caspar, see [Getting started](docs/howtos/getting-started.md)
+For more information about how to set up caspar, see [Getting started](docs/howtos/installation.md)
 
 ## Documentation 
 Browse [the documentation](docs/README.md).

@@ -112,7 +112,7 @@ for your favourite web server if you are using a different one.
 When running as a virtual host, a dedicated hostname will point to the root of your application.
 
 If you're using Apache, you can use the following simple config to set up a virtual host
-with your application (can be put in `/etc/sites-available/myapp.conf`):
+with your application (create a file called `/etc/apache2/sites-available/myapp.conf`):
 ```apacheconfig
 <VirtualHost *:80>
         ServerName myapp.l

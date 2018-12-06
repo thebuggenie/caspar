@@ -206,4 +206,24 @@
 			$this->setEnabled(true);
 		}
 
+        /**
+         * Flush all entries in the cache
+         */
+		public function flush()
+        {
+            if (!$this->enabled) return;
+
+            switch ($this->type) {
+                case self::TYPE_FILE:
+                    $iterator = new \DirectoryIterator($this->path);
+                    foreach ($iterator as $fileinfo)
+                    {
+                        if (!$fileinfo->isDir())
+                        {
+                            unlink($fileinfo->getPathname());
+                        }
+                    }
+            }
+        }
+
 	}
