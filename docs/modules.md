@@ -8,9 +8,11 @@ split your application into different modules, you can manage just fine with onl
 The main module is by default called `main`. This is just a convention, and you can choose your own name. Other modules
 can also be called anything you want, as long as it's a valid php class name.
 
-## Module classes
+## Module classes [OPTIONAL]
 Modules can have a module class where you can put module-specific functionality that is useful for your module 
 controllers / actions, but doesn't belong in the controllers / actions themselves.
+
+**Note:** A module can function just fine without a module class, and it's not required to create one.
 
 You can create a module class by extending the `caspar\core\Module` class, and putting it in the module folder (not 
 the `modules/` folder, but the `modules/modulename` folder). The name of the module class must be the same as the 
