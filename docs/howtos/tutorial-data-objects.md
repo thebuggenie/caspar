@@ -163,8 +163,10 @@ add the following annotations to the properties in that class. Also, add a `@Tab
          */
         protected $state;
         
-    }
+    [...]
 ```
+
+**Note:** Getters and setters are not included in the code snippet above, only the properties need annotations.
 
 The [`@Column` annotation](../annotations/column.md) is pretty self-explanatory, but here's a short overview:
 * **`type`:** one of the following: 
