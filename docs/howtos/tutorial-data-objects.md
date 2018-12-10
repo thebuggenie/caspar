@@ -118,7 +118,8 @@ Data object properties that you wish to store and retrieve from the database mus
 annotation. This tells b2db that the property is mapped to a database column, and how to transform the data stored
 in the database to and from data in your object.  
 
-Let's tell b2db how to handle the properties in our data object:
+Let's tell b2db how to handle the properties in our data object. Open the `Article.php` file that you just created, and 
+add the following annotations to the properties in that class. Also, add a `@Table` annotation on the class itself:
 ```php
 <?php
 
