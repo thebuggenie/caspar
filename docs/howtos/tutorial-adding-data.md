@@ -40,6 +40,6 @@ To visualize these two types, think of table objects as the gateways to the diff
 objects as individual rows in your tables. Whenever you need to get data from your database, you ask (query) your
 table objects, and they return data objects that represents data in your database.
 
-In the next section, we will look at the data objects
+In the next couple of sections, we will look at how b2db works. First up, data objects!
 
 [Data objects >>](tutorial-data-objects.md)
