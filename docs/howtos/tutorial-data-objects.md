@@ -198,7 +198,7 @@ for a property named `$_title`, the column name will automatically be `title`, w
 
 ### Id column
 In addition to the different column annotations, we need to tell b2db which field contains the unique identifier for 
-the row, so it knows how to identify the different items, also known as the id column. We do this by annotating the 
+the row, so it knows how to identify the different items, also known as the id column. We did this by annotating the 
 property that contains the id with an [`@Id` annotation](../annotations/id.md).
 
 When storing new items b2db will automatically assign the id value to th`@Id` annotated property when the object is 
@@ -208,12 +208,12 @@ stored.
 
 ## Table name
 We've told b2db how to *define* our data objects, but we haven't told it anything about where or how it's stored or 
-retrieved yet. To do this, we need to connect it to a table class by using a [`@Table` annotation](../annotations/table.md).
+retrieved yet. To do this, we connected it to a table class by using a [`@Table` annotation](../annotations/table.md).
 
 The `@Table` annotation contains a `name` property with the full class name of the class we want to use a table class.
 We specify `\application\entities\tables\Articles` because that is the name of the class we will create.   
 
-Now we need to create the table class that handles querying the database when we need to look up our objects. 
-In the next section we'll look at table objects:
+Your class is now almost ready to be used by b2db, but we also need to create the table class that handles querying 
+the database when we need to look up our objects. In the next section we'll look at table objects:
 
 [Table objects >>](tutorial-table-objects.md)
