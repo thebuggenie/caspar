@@ -1,6 +1,10 @@
 [<< Adding data to your database](tutorial-adding-data.md) | [Back to Contents](../README.md)
 
 # Data objects
+In this section you will:
+* create a file `application/entities/Article.php` to hold your article object 
+* learn how to set up the data object to work with b2db
+
 Data objects are regular php objects that you want to store in the table. Examples are blog posts and users, which
 are all stored in the database. We represent these with data objects in our application. Your application already has
 objects for the user, which comes with the default application skeleton. You don't actually have any users in your 
@@ -17,6 +21,7 @@ It needs a few basic properties, such as `id`, `created_at`, `author`, `title` a
 to add a property telling us the `state` of the blog post, to let us distinguish between drafts, published and deleted
 posts. We also want getters and setters for the different properties so we can change the values. 
 
+Create a file called `Article.php` in the folder `application/entities` with the following contents:
 ```php
 <?php
 
