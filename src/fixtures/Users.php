@@ -2,21 +2,21 @@
 
     namespace application\entities\tables;
 
-    use b2db\Criteria;
+    use b2db\Table;
 
     /**
      * @Table(name="users")
      * @Entity(class="\application\entities\User")
      */
-    class Users extends \b2db\Table
+    class Users extends Table
     {
 
         public function getByUsername($username)
         {
-            $crit = $this->getCriteria();
-            $crit->addWhere('users.username', $username);
+            $query = $this->getQuery();
+            $query->where('users.username', $username);
 
-            return $this->selectOne($crit);
+            return $this->selectOne($query);
         }
 
     }

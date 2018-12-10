@@ -275,7 +275,7 @@
             }
 
             if (!file_exists($main_components)) {
-                file_put_contents($main_components, file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'Components.php'));
+                file_put_contents($main_components, str_replace(['modulename', 'DefaultComponents'], ['main', 'Components'], file_get_contents(CASPAR_PATH . DS . 'fixtures' . DS . 'DefaultComponents.php')));
 
                 $this->cliEcho('* created ', 'green');
                 $this->cliEcho('application' . DS . 'modules' . DS . 'main' . DS, 'white', 'bold');

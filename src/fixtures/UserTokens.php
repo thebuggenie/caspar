@@ -1,30 +1,32 @@
 <?php
 
     namespace application\entities\tables;
-    use b2db\Criteria;
+
+    use b2db\Table,
+        b2db\Criterion;
 
     /**
      * @Table(name="user_tokens")
      * @Entity(class="\application\entities\UserToken")
      */
-    class UserTokens extends \b2db\Table
+    class UserTokens extends Table
     {
 
     	public function getByToken($token)
 	    {
-	    	$crit = $this->getCriteria();
-	    	$crit->addWhere('user_tokens.token', $token);
+	    	$query = $this->getQuery();
+	    	$query->where('user_tokens.token', $token);
 
-	    	return $this->selectOne($crit);
+	    	return $this->selectOne($query);
 	    }
 
 	    public function getValidByUserId($user_id, $timeout = 86400)
 	    {
-	    	$crit = $this->getCriteria();
-	    	$crit->addWhere('user_tokens.user_id', $user_id);
-	    	$crit->addWhere('user_tokens.created_at', time() - $timeout, Criteria::DB_GREATER_THAN_EQUAL);
+	    	$query = $this->getQuery();
+	    	$query->where('user_tokens.user_id', $user_id);
+	    	$query->where('user_tokens.created_at', time() - $timeout, Criterion::GREATER_THAN_EQUAL);
 
-	    	return $this->selectOne($crit);
+	    	return $this->selectOne($query);
 	    }
 
     }

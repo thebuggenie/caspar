@@ -3,12 +3,14 @@
 ## How-tos
 * [Installation and setup](howtos/installation.md)
 * [MVC Explained](howtos/mvc-explained.md)
+* [Structuring your application in modules](modules.md)
+* [Your first application](howtos/your-first-application.md)
 
 ## Configuration
 * [Services](configuration/services.md)
 * [Caching](configuration/cache.md)
 
-## General documentation
+## Technical documentation
 * [Modules](modules.md)
 * [Routing](routing.md)
 * [Controllers](controllers.md)
