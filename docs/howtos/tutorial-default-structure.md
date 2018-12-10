@@ -1,4 +1,4 @@
-[<< Setting up the default structure](your-first-application.md) | [Back to Contents](../README.md)
+[<< Your first application](your-first-application.md) | [Back to Contents](../README.md)
 
 # Setting up the default structure
 In this section, we will:
@@ -98,4 +98,5 @@ All settings are stored in the caspar configuration file (`application/configura
 we will put any settings we need to store as well. 
 
 In the next section, we will connect your application to the database, and add some tables to it.
+
 [Adding data to your database >>](tutorial-adding-data.md)

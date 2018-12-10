@@ -63,4 +63,5 @@ Caspar will look for all table definitions in our `application/entities/tables` 
 using our defined data objects.
 
 Next up: Storing and retrieving data
+
 [Storing and retrieving data >>](tutorial-storing-retrieving-data.md) 

@@ -41,4 +41,5 @@ objects as individual rows in your tables. Whenever you need to get data from yo
 table objects, and they return data objects that represents data in your database.
 
 In the next section, we will look at the data objects
+
 [Data objects >>](tutorial-data-objects.md)

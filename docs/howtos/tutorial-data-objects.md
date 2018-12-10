@@ -208,4 +208,5 @@ We specify `\application\entities\tables\Articles` because that is the name of t
 
 Now we need to create the table class that handles querying the database when we need to look up our objects. 
 In the next section we'll look at table objects:
+
 [Table objects >>](tutorial-table-objects.md)
