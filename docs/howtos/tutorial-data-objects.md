@@ -21,7 +21,8 @@ It needs a few basic properties, such as `id`, `created_at`, `author`, `title` a
 to add a property telling us the `state` of the blog post, to let us distinguish between drafts, published and deleted
 posts. We also want getters and setters for the different properties so we can change the values. 
 
-Create a file called `Article.php` in the folder `application/entities` with the following contents:
+The file needs to follow the [PSR-4 naming convention](https://www.php-fig.org/psr/psr-4) so composer can autoload it, 
+so create a file called `Article.php` in the folder `application/entities` with the following contents:
 ```php
 <?php
 
@@ -100,16 +101,14 @@ Create a file called `Article.php` in the folder `application/entities` with the
     }
 ```
 
-The file needs to follow the [PSR-4 naming convention](https://www.php-fig.org/psr/psr-4) so composer can autoload it, 
-so save the file as `application/entities/Article.php`. 
-
-With this class definition, we can now create new `Article` objects in our application:
+With this class definition, we could now create new `Article` objects in our application (don't write this anywhere):
 ```php
 <?php
 $article = new \application\entities\Article();
 $article->setTitle('My first blog post!');
 $article->setContent('This is the content of my first blog post!');
 ```
+*Example code to create `Article` objects*
 
 However - in this state, the object cannot be saved to the database. To make this happen, we need to tell b2db how the 
 data in the object is stored in the database.
