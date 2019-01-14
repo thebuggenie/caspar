@@ -18,7 +18,7 @@
   ],
   "require": {
     "php": "^7.1|^7.2",
-    "thebuggenie/b2db" : "dev-dev",
+    "thebuggenie/b2db" : "^3.0",
     "mustangostang/spyc": "0.5.1",
     "ext-Reflection": "*",
     "ext-mbstring": "*",
