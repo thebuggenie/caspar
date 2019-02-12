@@ -50,7 +50,7 @@
 				$this->setListeners($cache->get(self::CACHE_KEY_LISTENERS));
 			}
 
-			if (!$this->has_cached_listeners || !$this->has_cached_routes) {
+			if (Caspar::isDebugMode() || (!$this->has_cached_listeners || !$this->has_cached_routes)) {
 				$this->loadAnnotations();
 
 				if (!$this->has_cached_routes) {
@@ -111,11 +111,11 @@
 		protected function loadAnnotations()
 		{
 			foreach (Caspar::getModules() as $module_name => $module) {
-				if (!$this->has_cached_routes) {
+				if (Caspar::isDebugMode() || !$this->has_cached_routes) {
 					$this->loadModuleRoutes($module_name);
 				}
 
-				if (!$this->has_cached_listeners) {
+				if (Caspar::isDebugMode() || !$this->has_cached_listeners) {
 					$this->loadModuleListeners($module_name);
 				}
 			}
