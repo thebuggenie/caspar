@@ -21,8 +21,11 @@
 	class Request implements \ArrayAccess
 	{
 		
-		const POST = 1;
-		const GET = 2; 
+		const POST = 'post';
+		const GET = 'get';
+		const DELETE = 'delete';
+		const PUT = 'put';
+		const OPTIONS = 'options';
 
 		protected $_request_parameters = array();
 		protected $_post_parameters = array();
@@ -433,8 +436,17 @@
 					break;
 				case 'post':
 					return self::POST;
-					break; 
-			}			
+					break;
+				case 'delete':
+					return self::DELETE;
+					break;
+				case 'put':
+					return self::PUT;
+					break;
+				case 'options':
+					return self::OPTIONS;
+					break;
+			}
 		}
 		
 		/**
@@ -452,6 +464,21 @@
 		public function isPost()
 		{
 			return $this->isMethod(self::POST);
+		}
+
+		public function isOptions()
+		{
+			return $this->isMethod(self::OPTIONS);
+		}
+
+		public function isDelete()
+		{
+			return $this->isMethod(self::DELETE);
+		}
+
+		public function isPut()
+		{
+			return $this->isMethod(self::PUT);
 		}
 
 		/**
