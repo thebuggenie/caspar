@@ -30,6 +30,7 @@
 		protected $_request_parameters = array();
 		protected $_post_parameters = array();
 		protected $_get_parameters = array();
+		protected $_json_body_parameters = array();
 		protected $_files = array();
 		protected $_cookies = array();
 		protected $_querystring = null;
@@ -279,6 +280,14 @@
 				$this->_get_parameters[$key] = $value;
 				$this->_request_parameters[$key] = $value;
 			}
+			if ($this->getRequestedFormat() == 'json') {
+			    $json_body = json_decode(file_get_contents('php://input'), true);
+			    if (is_array($json_body)) {
+			        foreach ($json_body as $key => $value) {
+			            $this->_json_body_parameters[$key] = $value;
+                    }
+                }
+            }
 			foreach ($_FILES as $key => $file)
 			{
 				$this->_files[$key] = $file;
@@ -327,6 +336,19 @@
 			return array_diff_key($this->_request_parameters, array('url' => null));
 		}
 		
+		/**
+		 * Get a parameter from the json body
+		 *
+		 * @param string $key The parameter you want to retrieve
+		 * @param mixed $default_value The value to return if it doesn't exist
+		 *
+		 * @return mixed
+		 */
+		public function getJsonBodyParameter($key, $default_value = null)
+		{
+			return $this->_json_body_parameters[$key] ?? $default_value;
+		}
+
 		/**
 		 * Get a parameter from the request
 		 *
