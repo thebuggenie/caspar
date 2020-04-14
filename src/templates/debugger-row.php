@@ -46,14 +46,14 @@
 						<b>SQL details:</b>
 <?php if (\b2db\Core::isInitialized()): ?>
 						<ul>
-							<li><b>Driver:</b> <?php echo \b2db\Core::getDBtype(); ?></li>
+							<li><b>Driver:</b> <?php echo \b2db\Core::getDriver(); ?></li>
 							<li><b>DSN:</b> <?php echo \b2db\Core::getDSN(); ?>
 								<ul>
-									<li><b>Hostname:</b> <?php echo \b2db\Core::getHost(); ?>:<?php echo \b2db\Core::getPort(); ?></li>
-									<li><b>Database:</b> <?php echo \b2db\Core::getDBname(); ?></li>
+									<li><b>Hostname:</b> <?php echo \b2db\Core::getHostname(); ?>:<?php echo \b2db\Core::getPort(); ?></li>
+									<li><b>Database:</b> <?php echo \b2db\Core::getDatabaseName(); ?></li>
 								</ul>
 							</li>
-							<li><b>Username:</b> <?php echo \b2db\Core::getUname(); ?></li>
+							<li><b>Username:</b> <?php echo \b2db\Core::getUsername(); ?></li>
 							<li><b>Prefix:</b> <?php echo \b2db\Core::getTablePrefix(); ?></li>
 							<li><b>Connection status:</b> <?php echo (\b2db\Core::isConnected()) ? 'Connected' : 'Not connected'; ?></li>
 <?php if (\b2db\Core::isConnected()): ?>
