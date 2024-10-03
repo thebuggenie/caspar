@@ -156,7 +156,7 @@
             //var_dump($this->_request_parameters);die();
             $this->_is_ajax_call = (array_key_exists("HTTP_X_REQUESTED_WITH", $_SERVER) && mb_strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]) == 'xmlhttprequest');
 
-            $this->_querystring = (!Caspar::isCLI()) ? $_SERVER['QUERY_STRING'] : '';
+            $this->_query_string = (!Caspar::isCLI()) ? $_SERVER['QUERY_STRING'] : '';
         }
 
         public function hasFileUploads()
@@ -393,29 +393,29 @@
             return $this->getParameter('format', 'html');
         }
 
-        public function offsetExists($offset)
+        public function offsetExists($offset): bool
         {
             return $this->hasParameter($offset);
         }
 
-        public function offsetGet($offset)
+        public function offsetGet($offset): mixed
         {
             return $this->getParameter($offset);
         }
 
-        public function offsetSet($offset, $value)
+        public function offsetSet($offset, $value): void
         {
             $this->setParameter($offset, $value);
         }
 
-        public function offsetUnset($offset)
+        public function offsetUnset($offset): void
         {
             $this->setParameter($offset, null);
         }
 
         public function getQueryString()
         {
-            return $this->_querystring;
+            return $this->_query_string;
         }
 
     }
