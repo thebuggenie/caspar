@@ -121,12 +121,7 @@
 					{
 						self::$_named_arguments[$key] = self::$_provided_arguments[$cc];
 					}
-					continue;
 				}
-			}
-			foreach (self::$_provided_arguments as $key => $value)
-			{
-				$this->$key = $value;
 			}
 			$diff = array_diff(array_keys($this->_required_arguments), array_keys(self::$_named_arguments));
 			if (count($diff))
@@ -145,7 +140,6 @@
 					{
 						self::$_named_arguments[$key] = self::$_provided_arguments[$cc];
 					}
-					continue;
 				}
 			}
 		}
