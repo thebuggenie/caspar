@@ -150,7 +150,7 @@
             foreach ($_FILES as $key => $file) {
                 $this->_files[$key] = $file;
                 if ($file['error'] != UPLOAD_ERR_NO_FILE) {
-                    $this->_hasfiles = true;
+                    $this->_has_files = true;
                 }
             }
             //var_dump($this->_request_parameters);die();
@@ -161,7 +161,7 @@
 
         public function hasFileUploads()
         {
-            return (bool)$this->_hasfiles;
+            return (bool)$this->_has_files;
         }
 
         public function getUploadedFile($key)
