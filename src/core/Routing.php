@@ -253,7 +253,7 @@
 			$names = [];
 			$names_hash = [];
 			$r = null;
-			$methods = (!is_array($allowed_methods)) ? array_filter(explode(',', $allowed_methods), function($element) { return trim(strtolower($element)); }) : $allowed_methods;
+			$methods = (!is_array($allowed_methods)) ? array_map(function($element) { return trim(strtolower($element)); }, explode(',', $allowed_methods)) : $allowed_methods;
 
 			if (($route == '') || ($route == '/'))
 			{
