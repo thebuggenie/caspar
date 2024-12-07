@@ -45,7 +45,7 @@ body { background-color: #DFDFDF; font-family: sans-serif; font-size: 13px; }
 		<?php if (!Caspar::isDebugMode()): ?>
 			<h1>Woops! An error occured</h1>
 			<div style="padding: 10px;">
-				Go back to the <a href="http://www.thebuggenie.com">frontpage</a>?
+				The error has been logged and will be checked. We're sorry for the inconvenience.
 			</div>
 		<?php else: ?>
 			<h1>An error occured in Caspar</h1>

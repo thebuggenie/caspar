@@ -1040,6 +1040,8 @@ class Caspar
 	 */
 	public static function exceptionHandler($exception)
 	{
+        error_log($exception->getMessage());
+        error_log($exception->getTraceAsString());
 		if (self::isCLI()) {
 			self::cliError($exception->getMessage(), $exception);
 		} else {
@@ -1057,6 +1059,8 @@ class Caspar
 
 	public static function errorHandler($code, $error, $file, $line)
 	{
+        error_log($code . ': ' . $error);
+        error_log($file . ':' . $line);
 		$details = compact('code', 'error', 'file', 'line');
 
 		if (self::isCLI()) {
